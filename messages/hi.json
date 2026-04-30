@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "latest": "ताज़ा खबरें",
+    "trending": "ट्रेंडिंग",
+    "world": "दुनिया",
+    "business": "व्यापार",
+    "technology": "तकनीक",
+    "tools": "टूल्स",
+    "subscribe": "सदस्यता लें"
+  },
+  "home": {
+    "topStories": "मुख्य समाचार",
+    "seeAll": "सभी देखें",
+    "moreToRead": "और पढ़ें",
+    "latestCoverage": "ताज़ा कवरेज",
+    "inPlainEnglish": "सरल शब्दों में",
+    "explained": "समझाई गई कहानियाँ",
+    "browseExplainers": "व्याख्याएँ देखें",
+    "warmingUp": "न्यूज़रूम तैयार हो रहा है।",
+    "warmingUpDesc": "अभी कोई प्रकाशित लेख नहीं है।"
+  },
+  "article": {
+    "readMore": "और पढ़ें",
+    "share": "शेयर करें",
+    "minRead": "मिनट पढ़ने का समय",
+    "relatedStories": "संबंधित खबरें",
+    "sources": "स्रोत",
+    "eli5": "सरल भाषा में समझें"
+  },
+  "footer": {
+    "tagline": "स्रोत-आधारित समाचार, सरलीकृत।",
+    "about": "हमारे बारे में",
+    "privacy": "गोपनीयता",
+    "terms": "शर्तें",
+    "contact": "संपर्क",
+    "disclaimer": "अस्वीकरण",
+    "newsletter": "न्यूज़लेटर",
+    "copyright": "© {year} QuickGist. सर्वाधिकार सुरक्षित।"
+  },
+  "newsletter": {
+    "heading": "हर दिन सूचित रहें।",
+    "subheading": "दिन की सबसे महत्वपूर्ण खबरें आपके इनबॉक्स में।",
+    "placeholder": "आपका@ईमेल.com",
+    "cta": "मुफ्त सदस्यता लें",
+    "success": "आप सूची में हैं।",
+    "error": "कुछ गलत हुआ। पुनः प्रयास करें।"
+  },
+  "tools": {
+    "heading": "QuickGist टूल्स",
+    "subheading": "पढ़ने, शोध और सत्यापन के लिए मुफ्त AI टूल्स।",
+    "summarize": "लेख सारांशित करें",
+    "summarizeDesc": "कोई भी लेख URL या टेक्स्ट पेस्ट करें — सेकंड में स्वच्छ सारांश पाएं।"
+  }
+}

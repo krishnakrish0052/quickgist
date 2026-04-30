@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "latest": "Últimas noticias",
+    "trending": "Tendencias",
+    "world": "Mundo",
+    "business": "Negocios",
+    "technology": "Tecnología",
+    "tools": "Herramientas",
+    "subscribe": "Suscribirse"
+  },
+  "home": {
+    "topStories": "Noticias principales",
+    "seeAll": "Ver todo",
+    "moreToRead": "Más para leer",
+    "latestCoverage": "Cobertura reciente",
+    "inPlainEnglish": "En palabras simples",
+    "explained": "Historias explicadas.",
+    "browseExplainers": "Ver explicaciones",
+    "warmingUp": "La redacción se está calentando.",
+    "warmingUpDesc": "Aún no hay artículos publicados."
+  },
+  "article": {
+    "readMore": "Leer más",
+    "share": "Compartir",
+    "minRead": "min de lectura",
+    "relatedStories": "Historias relacionadas",
+    "sources": "Fuentes",
+    "eli5": "Explica de forma sencilla"
+  },
+  "footer": {
+    "tagline": "Noticias con fuentes, simplificadas.",
+    "about": "Acerca de",
+    "privacy": "Privacidad",
+    "terms": "Términos",
+    "contact": "Contacto",
+    "disclaimer": "Aviso legal",
+    "newsletter": "Boletín",
+    "copyright": "© {year} QuickGist. Todos los derechos reservados."
+  },
+  "newsletter": {
+    "heading": "Mantente informado, cada día.",
+    "subheading": "Las noticias más importantes del día en tu bandeja de entrada.",
+    "placeholder": "tu@correo.com",
+    "cta": "Suscribirse gratis",
+    "success": "Estás en la lista.",
+    "error": "Algo salió mal. Inténtalo de nuevo."
+  },
+  "tools": {
+    "heading": "Herramientas QuickGist",
+    "subheading": "Herramientas de IA gratuitas para leer, investigar y verificar.",
+    "summarize": "Resumir un artículo",
+    "summarizeDesc": "Pega cualquier URL o texto — obtén un resumen limpio en segundos."
+  }
+}

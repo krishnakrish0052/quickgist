@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "latest": "Neueste",
+    "trending": "Trends",
+    "world": "Welt",
+    "business": "Wirtschaft",
+    "technology": "Technologie",
+    "tools": "Tools",
+    "subscribe": "Abonnieren"
+  },
+  "home": {
+    "topStories": "Top-Meldungen",
+    "seeAll": "Alle anzeigen",
+    "moreToRead": "Mehr lesen",
+    "latestCoverage": "Aktuelle Berichte",
+    "inPlainEnglish": "Einfach erklärt",
+    "explained": "Geschichten erklärt.",
+    "browseExplainers": "Erklärungen durchsuchen",
+    "warmingUp": "Die Redaktion startet.",
+    "warmingUpDesc": "Noch keine veröffentlichten Artikel."
+  },
+  "article": {
+    "readMore": "Mehr lesen",
+    "share": "Teilen",
+    "minRead": "Min. Lesezeit",
+    "relatedStories": "Verwandte Artikel",
+    "sources": "Quellen",
+    "eli5": "Einfach erklären"
+  },
+  "footer": {
+    "tagline": "Quellenbasierte Nachrichten, vereinfacht.",
+    "about": "Über uns",
+    "privacy": "Datenschutz",
+    "terms": "Nutzungsbedingungen",
+    "contact": "Kontakt",
+    "disclaimer": "Haftungsausschluss",
+    "newsletter": "Newsletter",
+    "copyright": "© {year} QuickGist. Alle Rechte vorbehalten."
+  },
+  "newsletter": {
+    "heading": "Täglich informiert bleiben.",
+    "subheading": "Die wichtigsten Nachrichten des Tages in Ihrem Posteingang.",
+    "placeholder": "ihre@email.de",
+    "cta": "Kostenlos abonnieren",
+    "success": "Sie sind auf der Liste.",
+    "error": "Etwas ist schiefgelaufen. Versuchen Sie es erneut."
+  },
+  "tools": {
+    "heading": "QuickGist Tools",
+    "subheading": "Kostenlose KI-Tools zum Lesen, Recherchieren und Verifizieren.",
+    "summarize": "Artikel zusammenfassen",
+    "summarizeDesc": "Fügen Sie eine URL oder einen Text ein — erhalten Sie in Sekunden eine saubere Zusammenfassung."
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "latest": "Dernières nouvelles",
+    "trending": "Tendances",
+    "world": "Monde",
+    "business": "Économie",
+    "technology": "Technologie",
+    "tools": "Outils",
+    "subscribe": "S'abonner"
+  },
+  "home": {
+    "topStories": "À la une",
+    "seeAll": "Tout voir",
+    "moreToRead": "En savoir plus",
+    "latestCoverage": "Dernières actualités",
+    "inPlainEnglish": "En termes simples",
+    "explained": "Histoires expliquées.",
+    "browseExplainers": "Parcourir les explications",
+    "warmingUp": "La rédaction se prépare.",
+    "warmingUpDesc": "Aucun article publié pour l'instant."
+  },
+  "article": {
+    "readMore": "En savoir plus",
+    "share": "Partager",
+    "minRead": "min de lecture",
+    "relatedStories": "Articles connexes",
+    "sources": "Sources",
+    "eli5": "Expliquer simplement"
+  },
+  "footer": {
+    "tagline": "L'actualité sourcée, simplifiée.",
+    "about": "À propos",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "contact": "Contact",
+    "disclaimer": "Avertissement",
+    "newsletter": "Bulletin",
+    "copyright": "© {year} QuickGist. Tous droits réservés."
+  },
+  "newsletter": {
+    "heading": "Restez informé, chaque jour.",
+    "subheading": "Les nouvelles les plus importantes du jour dans votre boîte mail.",
+    "placeholder": "votre@email.com",
+    "cta": "S'abonner gratuitement",
+    "success": "Vous êtes sur la liste.",
+    "error": "Une erreur est survenue. Réessayez."
+  },
+  "tools": {
+    "heading": "Outils QuickGist",
+    "subheading": "Outils IA gratuits pour lire, rechercher et vérifier.",
+    "summarize": "Résumer un article",
+    "summarizeDesc": "Collez n'importe quelle URL ou texte — obtenez un résumé propre en quelques secondes."
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "latest": "آخر الأخبار",
+    "trending": "الأكثر تداولاً",
+    "world": "العالم",
+    "business": "الأعمال",
+    "technology": "التكنولوجيا",
+    "tools": "الأدوات",
+    "subscribe": "اشترك"
+  },
+  "home": {
+    "topStories": "أبرز القصص",
+    "seeAll": "عرض الكل",
+    "moreToRead": "المزيد للقراءة",
+    "latestCoverage": "آخر التغطيات",
+    "inPlainEnglish": "بلغة بسيطة",
+    "explained": "قصص موضّحة.",
+    "browseExplainers": "تصفح الشروحات",
+    "warmingUp": "غرفة الأخبار تستعد.",
+    "warmingUpDesc": "لا توجد مقالات منشورة بعد."
+  },
+  "article": {
+    "readMore": "اقرأ المزيد",
+    "share": "مشاركة",
+    "minRead": "دقيقة قراءة",
+    "relatedStories": "قصص ذات صلة",
+    "sources": "المصادر",
+    "eli5": "اشرح ببساطة"
+  },
+  "footer": {
+    "tagline": "أخبار موثوقة المصادر، مبسّطة.",
+    "about": "حول",
+    "privacy": "الخصوصية",
+    "terms": "الشروط",
+    "contact": "التواصل",
+    "disclaimer": "إخلاء المسؤولية",
+    "newsletter": "النشرة الإخبارية",
+    "copyright": "© {year} QuickGist. جميع الحقوق محفوظة."
+  },
+  "newsletter": {
+    "heading": "ابقَ على اطلاع، كل يوم.",
+    "subheading": "أبرز أخبار اليوم في صندوق بريدك الإلكتروني.",
+    "placeholder": "بريدك@الإلكتروني.com",
+    "cta": "اشترك مجاناً",
+    "success": "أنت الآن في القائمة.",
+    "error": "حدث خطأ ما. حاول مرة أخرى."
+  },
+  "tools": {
+    "heading": "أدوات QuickGist",
+    "subheading": "أدوات ذكاء اصطناعي مجانية للقراءة والبحث والتحقق.",
+    "summarize": "تلخيص مقال",
+    "summarizeDesc": "الصق أي رابط أو نص — احصل على ملخص نظيف في ثوانٍ."
+  }
+}

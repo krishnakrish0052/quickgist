@@ -1,0 +1,60 @@
+# ─── Build outputs ────────────────────────────────────────
+.next
+dist
+out
+build
+*.tsbuildinfo
+tsconfig.tsbuildinfo
+
+# ─── Dependencies ─────────────────────────────────────────
+node_modules
+
+# ─── Environment / secrets ────────────────────────────────
+.env
+.env.local
+.env.*.local
+.env.production
+
+# ─── Testing ──────────────────────────────────────────────
+coverage
+playwright-report
+test-results
+.nyc_output
+
+# ─── Deployment ───────────────────────────────────────────
+.vercel
+
+# ─── OS / editor junk ─────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+.idea
+.vscode
+*.code-workspace
+
+# ─── Logs ─────────────────────────────────────────────────
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── Misc generated ───────────────────────────────────────
+.cache
+tmp
+temp
+*.tmp
+*.temp
+
+# ─── Claude Code internal ─────────────────────────────────
+.claude
+
+# ─── Architecture diagram (large binary, reference only) ──
+ai_platform_architecture.svg
+
+# ─── Internal planning docs (not for public repo) ─────────
+docs/AI_Content_Platform_Complete_Guide.md
+docs/AI_Content_Platform_Part2.md
+docs/AI_News_Platform_Complete_Plan.md

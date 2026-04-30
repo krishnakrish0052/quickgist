@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "latest": "最新ニュース",
+    "trending": "トレンド",
+    "world": "世界",
+    "business": "ビジネス",
+    "technology": "テクノロジー",
+    "tools": "ツール",
+    "subscribe": "購読する"
+  },
+  "home": {
+    "topStories": "トップニュース",
+    "seeAll": "すべて見る",
+    "moreToRead": "もっと読む",
+    "latestCoverage": "最新記事",
+    "inPlainEnglish": "わかりやすく",
+    "explained": "解説記事",
+    "browseExplainers": "解説を見る",
+    "warmingUp": "ニュースルームを準備中。",
+    "warmingUpDesc": "まだ公開記事がありません。"
+  },
+  "article": {
+    "readMore": "続きを読む",
+    "share": "シェアする",
+    "minRead": "分で読める",
+    "relatedStories": "関連記事",
+    "sources": "情報源",
+    "eli5": "簡単に説明する"
+  },
+  "footer": {
+    "tagline": "根拠ある報道を、わかりやすく。",
+    "about": "QuickGistについて",
+    "privacy": "プライバシー",
+    "terms": "利用規約",
+    "contact": "お問い合わせ",
+    "disclaimer": "免責事項",
+    "newsletter": "ニュースレター",
+    "copyright": "© {year} QuickGist. All rights reserved."
+  },
+  "newsletter": {
+    "heading": "毎日、最新情報をお届けします。",
+    "subheading": "その日の最重要ニュースをあなたの受信箱へ。",
+    "placeholder": "your@email.com",
+    "cta": "無料で購読する",
+    "success": "登録完了です。",
+    "error": "エラーが発生しました。再試行してください。"
+  },
+  "tools": {
+    "heading": "QuickGist ツール",
+    "subheading": "読解・調査・検証のための無料AIツール。",
+    "summarize": "記事を要約する",
+    "summarizeDesc": "URLやテキストを貼り付けると、数秒でクリーンな要約が得られます。"
+  }
+}

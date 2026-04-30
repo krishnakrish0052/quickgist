@@ -1,0 +1,54 @@
+{
+  "nav": {
+    "latest": "Latest",
+    "trending": "Trending",
+    "world": "World",
+    "business": "Business",
+    "technology": "Technology",
+    "tools": "Tools",
+    "subscribe": "Subscribe"
+  },
+  "home": {
+    "topStories": "Top stories",
+    "seeAll": "See all",
+    "moreToRead": "More to read",
+    "latestCoverage": "Latest coverage",
+    "inPlainEnglish": "In plain English",
+    "explained": "Stories, explained.",
+    "browseExplainers": "Browse explainers",
+    "warmingUp": "Newsroom warming up.",
+    "warmingUpDesc": "No published stories yet. Run the pipeline to seed content."
+  },
+  "article": {
+    "readMore": "Read more",
+    "share": "Share",
+    "minRead": "min read",
+    "relatedStories": "Related stories",
+    "sources": "Sources",
+    "eli5": "Explain simply"
+  },
+  "footer": {
+    "tagline": "Source-grounded news, simplified.",
+    "about": "About",
+    "privacy": "Privacy",
+    "terms": "Terms",
+    "contact": "Contact",
+    "disclaimer": "Disclaimer",
+    "newsletter": "Newsletter",
+    "copyright": "© {year} QuickGist. All rights reserved."
+  },
+  "newsletter": {
+    "heading": "Stay informed, every day.",
+    "subheading": "Get the day's most important stories in your inbox — source-grounded, no opinion.",
+    "placeholder": "your@email.com",
+    "cta": "Subscribe free",
+    "success": "You're on the list. Check your inbox.",
+    "error": "Something went wrong. Try again."
+  },
+  "tools": {
+    "heading": "QuickGist Tools",
+    "subheading": "Free AI tools for reading, research, and verification.",
+    "summarize": "Summarize an article",
+    "summarizeDesc": "Paste any article URL or text — get a clean, source-cited summary in seconds."
+  }
+}
