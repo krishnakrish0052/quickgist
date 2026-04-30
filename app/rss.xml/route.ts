@@ -30,7 +30,7 @@ export async function GET() {
 <channel>
   <title>QuickGist</title>
   <link>${absoluteUrl("/")}</link>
-  <description>AI-assisted source-grounded news explainers.</description>
+  <description>Breaking stories and in-depth explainers from trusted global sources, curated by QuickGist editors.</description>
 ${items}
 </channel>
 </rss>`;

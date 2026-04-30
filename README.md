@@ -129,6 +129,24 @@ Admin routes are `Disallow`-ed in `robots.txt`, excluded from `sitemap.xml`, and
 
 ## Changelog
 
+### Phase 3 — Production Grade (2026-04-30)
+
+**Human-first editorial identity**
+- Removed all AI-referencing copy from every public-facing page and component
+- Author name standardised to `"QuickGist Editorial"` across seed data, article generation, article pages, and RSS feed
+- About, Disclaimer, Privacy, Terms of Service, and Contact pages fully rewritten with production-ready copy and proper legal/editorial standards
+- Contact page has four dedicated email addresses: editorial, tips, partnerships, privacy
+
+**Production SVG logo**
+- `public/logo.svg` — geometric QG monogram: dark rounded-square field, white Q-ring with diagonal tail, signal-red G-arc; replaces Lucide Sparkles icon in Header and Footer
+- `next/image` used for logo rendering (automatic lazy-load and size optimisation)
+
+**Site metadata hygiene**
+- `app/layout.tsx` — removed `"AI journalism"` keyword; OG and Twitter descriptions updated to reflect editorial (not AI) positioning
+- RSS feed channel description updated to production copy
+
+---
+
 ### Phase 2 — Advanced COS (2026-04-30)
 
 **Real news ingestion (Phase A)**

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none" role="img" aria-label="QuickGist">
+  <!-- Background -->
+  <rect width="40" height="40" rx="8" fill="#0f0f10"/>
+  <!-- Q: ring + tail -->
+  <circle cx="14" cy="19" r="6.5" stroke="white" stroke-width="2.4" fill="none"/>
+  <line x1="18.6" y1="23.6" x2="22.2" y2="27.2" stroke="white" stroke-width="2.4" stroke-linecap="round"/>
+  <!-- G: arc + shelf -->
+  <path d="M33 13.5C31.2 11.9 28.9 11 26.4 11c-4.9 0-8.9 4-8.9 8.9s4 8.9 8.9 8.9c2.4 0 4.5-.9 6.1-2.4V21h-5.5" stroke="#c2410c" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+</svg>

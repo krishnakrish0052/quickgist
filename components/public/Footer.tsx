@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles } from "lucide-react";
+import Image from "next/image";
 import { config } from "@/lib/config";
 
 const links = {
@@ -30,9 +30,7 @@ export function PublicFooter() {
       <div className="container-wide grid gap-10 px-4 py-14 lg:grid-cols-[1.5fr_2fr]">
         <div>
           <Link href="/" className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-md bg-ink text-paper">
-              <Sparkles size={18} />
-            </span>
+            <Image src="/logo.svg" alt={config.brandName} width={36} height={36} />
             <span className="font-display text-xl font-bold tracking-tight text-ink">
               {config.brandName}
             </span>

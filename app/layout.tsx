@@ -32,18 +32,18 @@ export const metadata: Metadata = {
     "Trending stories, distilled from multiple sources, reviewed for quality, and delivered with explainers, social packs, and SEO-ready packaging.",
   applicationName: config.brandName,
   authors: [{ name: `${config.brandName} editorial` }],
-  keywords: ["news", "explainers", "AI journalism", "trending stories", "summary"],
+  keywords: ["news", "world news", "trending stories", "explainers", "technology", "business", "science"],
   openGraph: {
     type: "website",
     siteName: config.brandName,
     url: config.siteUrl,
     title: `${config.brandName} — Source-grounded news`,
-    description: "Premium AI-assisted journalism with verifiable sources and reviewer oversight."
+    description: "Trending stories distilled from multiple sources, fact-checked and delivered with in-depth explainers."
   },
   twitter: {
     card: "summary_large_image",
     title: config.brandName,
-    description: "Premium AI-assisted journalism with verifiable sources."
+    description: "Breaking stories and explainers from trusted global sources, curated by QuickGist editors."
   },
   robots: {
     index: true,

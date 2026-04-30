@@ -181,7 +181,7 @@ export async function generateArticlePackage(topic: Topic): Promise<GeneratedCon
     imagePrompt: `Editorial realistic news image for "${topic.title}", credible newsroom style, no text overlay, high detail.`,
     tags: topic.keywords,
     category: topic.category,
-    authorName: "QuickGist Editorial AI",
+    authorName: "QuickGist Editorial",
     status: "review",
     risk: topic.risk,
     qualityScore: 0,

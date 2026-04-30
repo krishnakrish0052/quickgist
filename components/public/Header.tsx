@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { cookies, headers } from "next/headers";
-import { Sparkles } from "lucide-react";
+import Image from "next/image";
 import { config } from "@/lib/config";
 import { LocaleSwitcher } from "@/components/public/LocaleSwitcher";
 import { locales, countryToLocale, LOCALE_COOKIE, defaultLocale, type Locale } from "@/i18n/routing";
@@ -34,9 +34,7 @@ export async function PublicHeader() {
     <header className="sticky top-0 z-30 border-b border-line bg-paper/85 backdrop-blur-md">
       <div className="container-wide flex min-h-16 items-center justify-between gap-4 py-3">
         <Link href="/" className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-md bg-ink text-paper">
-            <Sparkles size={18} />
-          </span>
+          <Image src="/logo.svg" alt={config.brandName} width={36} height={36} priority />
           <span className="font-display text-xl font-bold tracking-tight text-ink">
             {config.brandName}
           </span>

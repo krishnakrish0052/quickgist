@@ -33,7 +33,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: "article",
       images: [{ url: heroImage, width: 1400, height: 788, alt: article.title }],
       publishedTime: article.publishedAt ?? article.createdAt,
-      authors: [article.authorName ?? "QuickGist Editorial AI"],
+      authors: [article.authorName ?? "QuickGist Editorial"],
       section: article.category,
       tags: article.tags
     },

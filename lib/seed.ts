@@ -234,7 +234,7 @@ export const seedArticles: Article[] = [
       "Editorial image of college students reviewing AI-generated research on laptops, newsroom lighting, realistic, trustworthy, no text overlays.",
     tags: ["AI", "Education", "Students", "Careers", "AI Safety"],
     category: "technology",
-    authorName: "QuickGist Editorial AI",
+    authorName: "QuickGist Editorial",
     status: "published",
     risk: "medium",
     qualityScore: 91,
