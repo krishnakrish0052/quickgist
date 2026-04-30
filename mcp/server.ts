@@ -522,14 +522,13 @@ async function startStdio() {
 
 async function startHttp() {
   const app = Fastify({ logger: true });
-  const transport = new StreamableHTTPServerTransport({
-    sessionIdGenerator: undefined
-  });
-  const server = createQuickGistMcpServer();
-  await server.connect(transport);
 
+  // SDK 1.x stateless mode: create a fresh transport + server per request
   app.all("/mcp", async (request, reply) => {
     reply.hijack();
+    const transport = new StreamableHTTPServerTransport({ sessionIdGenerator: undefined });
+    const server = createQuickGistMcpServer();
+    await server.connect(transport);
     await transport.handleRequest(request.raw, reply.raw, request.body);
   });
 

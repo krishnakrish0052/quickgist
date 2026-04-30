@@ -8,7 +8,10 @@
  */
 
 const BASE = process.env.MCP_URL ?? "http://localhost:3333/mcp";
-const HEADERS = { "Content-Type": "application/json" };
+const HEADERS = {
+  "Content-Type": "application/json",
+  "Accept": "application/json, text/event-stream"
+};
 
 let passed = 0;
 let failed = 0;
@@ -20,7 +23,12 @@ async function call(method, params = {}) {
     body: JSON.stringify({ jsonrpc: "2.0", id: Date.now(), method, params })
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return res.json();
+  const text = await res.text();
+  // SDK returns SSE: parse "data: {...}" lines
+  const dataLine = text.split("\n").find((l) => l.startsWith("data:"));
+  if (dataLine) return JSON.parse(dataLine.slice(5).trim());
+  // Plain JSON fallback
+  return JSON.parse(text);
 }
 
 async function test(label, fn) {
@@ -53,7 +61,15 @@ console.log("Pipeline:");
 await test("ops_snapshot", () => callTool("ops_snapshot"));
 await test("ingest_run (offline)", () => callTool("ingest_run", { offline: true, dryRun: true }));
 await test("pipeline_run (offline dryRun)", () => callTool("pipeline_run", { offline: true, dryRun: true }));
-await test("trending_detect", () => callTool("trending_detect"));
+
+// trending_detect: capture result to extract a topic ID for generate_article
+const trendResult = await test("trending_detect", () => callTool("trending_detect"));
+let topicId;
+try {
+  const parsed = JSON.parse(trendResult?.content?.[0]?.text ?? "{}");
+  topicId = parsed?.topics?.[0]?.id;
+} catch {}
+
 await test("get_top_articles", () => callTool("get_top_articles", { limit: 5 }));
 await test("get_content_calendar", () => callTool("get_content_calendar", { daysAhead: 7 }));
 
@@ -64,25 +80,21 @@ await test("autonomous_start", () => callTool("autonomous_start", { cronExpressi
 await test("autonomous_stop", () => callTool("autonomous_stop"));
 await test("autonomous_run_once", () => callTool("autonomous_run_once"));
 
-// ─── Content generation (needs a topic — use seed data) ───
-console.log("\nContent generation (seed topic):");
-const snap = await test("ops_snapshot for topic id", () => callTool("ops_snapshot"));
-const rawSnap = snap?.content?.[0]?.text;
-let topicId;
-try {
-  const parsed = JSON.parse(rawSnap ?? "{}");
-  topicId = parsed?.topics?.[0]?.id ?? parsed?.topics?.[0];
-} catch {}
+// ─── Content generation ────────────────────────────────────
+console.log("\nContent generation:");
 
 if (topicId) {
-  await test("generate_article", () => callTool("generate_article", { topicId }));
+  await test("generate_article (new topic)", () => callTool("generate_article", { topicId }));
+} else {
+  console.log("  ℹ  No new topics from trending_detect — skipping generate_article");
 }
 
-// Find an article slug from the snapshot
+// Fetch article slug from get_top_articles (uses published seed/generated articles)
+const topArticlesResult = await test("get_top_articles for slug", () => callTool("get_top_articles", { limit: 1 }));
 let articleSlug;
 try {
-  const parsed = JSON.parse(rawSnap ?? "{}");
-  articleSlug = parsed?.recentArticles?.[0]?.slug ?? parsed?.articles?.[0]?.slug;
+  const articles = JSON.parse(topArticlesResult?.content?.[0]?.text ?? "[]");
+  articleSlug = articles?.[0]?.slug;
 } catch {}
 
 if (articleSlug) {
@@ -102,7 +114,7 @@ if (articleSlug) {
   await test("generate_shorts_script", () => callTool("generate_shorts_script", { slug: articleSlug }));
   await test("generate_image_prompts", () => callTool("generate_image_prompts", { slug: articleSlug }));
 } else {
-  console.log("  ℹ  No article found — skipping article-specific tools (run pipeline_run first)");
+  console.log("  ℹ  No published articles found — skipping article-specific tools");
 }
 
 // ─── Summary ──────────────────────────────────────────────

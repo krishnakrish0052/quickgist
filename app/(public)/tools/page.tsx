@@ -3,7 +3,7 @@ import { ArrowRight, FileText, Sparkles, Wand2, Zap } from "lucide-react";
 
 export const metadata = {
   title: "Free tools",
-  description: "Free AI-assisted reading and writing utilities — summarize articles, draft headlines, simplify jargon."
+  description: "Free reading and writing utilities from the QuickGist newsroom — summarize articles, draft headlines, simplify jargon."
 };
 
 const tools = [
