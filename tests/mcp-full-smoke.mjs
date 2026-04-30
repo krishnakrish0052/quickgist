@@ -84,7 +84,12 @@ await test("autonomous_run_once", () => callTool("autonomous_run_once"));
 console.log("\nContent generation:");
 
 if (topicId) {
-  await test("generate_article (new topic)", () => callTool("generate_article", { topicId }));
+  const genResult = await test("generate_article (new topic)", () => callTool("generate_article", { topicId }));
+  try {
+    const parsed = JSON.parse(genResult?.content?.[0]?.text ?? "{}");
+    const art = parsed?.article;
+    if (art) console.log(`     → slug: ${art.slug} | status: ${art.status} | humanizeScore: ${parsed.contentQuality?.humanizeScore}`);
+  } catch {}
 } else {
   console.log("  ℹ  No new topics from trending_detect — skipping generate_article");
 }
