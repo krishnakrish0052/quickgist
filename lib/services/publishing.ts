@@ -16,13 +16,19 @@ export interface PublishResult {
   reason?: string;
 }
 
-export async function publishArticle(articleId: string, actor: "system" | "admin" | "worker" = "system"): Promise<PublishResult> {
+export async function publishArticle(
+  articleId: string,
+  actor: "system" | "admin" | "worker" = "system",
+  force = false
+): Promise<PublishResult> {
   const article = await getArticleById(articleId);
   if (!article) return { article: undefined as never, published: false, reason: "Article not found" };
 
-  const latestReport = await getLatestQualityReport(articleId);
-  if (!latestReport?.passed) {
-    return { article, published: false, reason: "Latest quality report has not passed" };
+  if (!force) {
+    const latestReport = await getLatestQualityReport(articleId);
+    if (!latestReport?.passed) {
+      return { article, published: false, reason: "Latest quality report has not passed" };
+    }
   }
 
   article.status = "published";

@@ -1,0 +1,45 @@
+name: Content Pipeline
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+
+jobs:
+  dry-run:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: quickgist
+          POSTGRES_USER: quickgist
+          POSTGRES_PASSWORD: quickgist
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U quickgist -d quickgist"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 12
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run db:migrate
+      - run: npm run db:seed
+      - run: npm run pipeline:dry-run
+        env:
+          PIPELINE_DRY_RUN: "true"
+          STORAGE_DRIVER: postgres
+          DATABASE_URL: postgres://quickgist:quickgist@localhost:5432/quickgist
+          REDIS_URL: redis://localhost:6379
+          NEXT_PUBLIC_SITE_URL: ${{ vars.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000' }}
+          ADMIN_API_KEY: ${{ secrets.ADMIN_API_KEY || 'dev-admin-key' }}

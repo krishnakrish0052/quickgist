@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowRight, Sparkles, TrendingUp } from "lucide-react";
+import { ArrowRight, BookOpen, TrendingUp } from "lucide-react";
 import { StoryCard } from "@/components/public/StoryCard";
 import { CategoryRail } from "@/components/public/CategoryRail";
 import { ExplainerCard } from "@/components/public/ExplainerCard";
@@ -14,8 +14,9 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: { absolute: "QuickGist — Real news, explained clearly" },
-  description: "Source-grounded news summaries across world, business, tech, science and health. No noise, no opinion. Just the facts.",
-  keywords: ["news", "summaries", "explained", "world news", "technology news", "AI news"],
+  description:
+    "Source-grounded news summaries across world, business, tech, science and health. No noise, no opinion. Just the facts.",
+  keywords: ["news", "world news", "business news", "technology news", "science news", "explainers"],
   openGraph: {
     title: "QuickGist — Real news, explained clearly",
     description: "Source-grounded news summaries. No noise, no opinion.",
@@ -35,33 +36,34 @@ export default async function HomePage() {
   let published = await getPublishedArticles();
   if (published.length === 0) {
     const all = await getArticles();
-    published = all
-      .filter((article) => article.status === "review" || article.status === "draft")
-      .slice(0, 12);
+    published = all.filter((a) => a.status === "review" || a.status === "draft").slice(0, 12);
   }
 
   if (published.length === 0) {
     return (
       <div className="container-narrow py-24 text-center">
-        <Sparkles size={32} className="mx-auto text-signal" />
-        <h1 className="mt-6 font-display text-3xl font-bold text-ink">Newsroom warming up.</h1>
-        <p className="mt-3 text-ink/65">
-          No published stories yet. Run <code className="rounded bg-white px-1.5 py-0.5">npm run pipeline:local</code>{" "}
-          or call the MCP tool <code className="rounded bg-white px-1.5 py-0.5">pipeline_run</code> to seed content.
+        <div className="mx-auto mb-6 h-16 w-16 rounded-2xl bg-signal/10 flex items-center justify-center">
+          <BookOpen size={28} className="text-signal" />
+        </div>
+        <h1 className="font-display text-3xl font-bold text-ink">Newsroom is warming up.</h1>
+        <p className="mt-3 text-ink/55">
+          Run <code className="rounded bg-white px-1.5 py-0.5 text-sm">npm run pipeline:local</code> to seed content.
         </p>
       </div>
     );
   }
 
   const lead = published[0];
-  const topStories = published.slice(1, 5);
-  const grid = published.slice(5, 11);
-  const categories = Array.from(new Set(published.map((article) => article.category.toLowerCase())));
+  const secondLead = published[1];
+  const topStories = published.slice(2, 6);
+  const gridArticles = published.slice(6, 12);
+  const categories = Array.from(new Set(published.map((a) => a.category.toLowerCase())));
 
-  const explainerCandidates = published.filter(
-    (article) => article.eli5Markdown && article.eli5Markdown.length > 80
-  );
-  const explainers = (explainerCandidates.length > 0 ? explainerCandidates : published).slice(0, 4);
+  const explainers = published
+    .filter((a) => a.eli5Markdown && a.eli5Markdown.length > 80)
+    .slice(0, 4);
+  const explainerFallback = published.slice(0, 4);
+  const explainerItems = explainers.length >= 2 ? explainers : explainerFallback;
 
   const articlesByCategory: Record<string, typeof published> = {};
   for (const article of published) {
@@ -77,80 +79,111 @@ export default async function HomePage() {
       {schemas.map((s, i) => (
         <script key={i} type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(s) }} />
       ))}
-      <section className="bg-hero-radial">
-        <div className="container-wide grid gap-6 px-4 py-10 lg:grid-cols-[2fr_1fr] lg:py-14">
-          <div className="animate-fade-in">
-            <StoryCard article={lead} size="lead" priority />
-          </div>
-          <div className="grid content-start gap-1 rounded-2xl bg-white p-6 shadow-soft">
-            <div className="mb-2 flex items-center gap-2">
-              <TrendingUp size={16} className="text-signal" />
-              <h2 className="font-display text-base font-bold text-ink">Top stories</h2>
-              <Link href="/trending" className="ml-auto text-xs font-semibold text-signal hover:text-ink">
-                See all
-              </Link>
+
+      {/* ── Breaking banner ───────────────────────────────── */}
+      <div className="border-b border-signal/20 bg-signal/5">
+        <div className="container-wide flex items-center gap-3 px-4 py-2 text-[11px]">
+          <span className="shrink-0 rounded-full bg-signal px-2.5 py-0.5 font-bold uppercase tracking-widest text-white">
+            Latest
+          </span>
+          <p className="truncate font-medium text-ink/75">{lead.title}</p>
+          <Link href={`/news/${lead.slug}`} className="ml-auto shrink-0 font-semibold text-signal hover:underline flex items-center gap-1">
+            Read <ArrowRight size={11} />
+          </Link>
+        </div>
+      </div>
+
+      {/* ── Hero section ──────────────────────────────────── */}
+      <section className="hero-bg border-b border-line">
+        <div className="container-wide px-4 py-8 lg:py-12">
+          <div className="grid gap-6 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px]">
+            {/* Lead story */}
+            <Reveal direction="up">
+              <StoryCard article={lead} size="lead" priority />
+            </Reveal>
+
+            {/* Top stories sidebar */}
+            <div className="flex flex-col gap-0 rounded-2xl border border-line/70 bg-white shadow-soft overflow-hidden">
+              <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+                <div className="flex items-center gap-2">
+                  <TrendingUp size={14} className="text-signal" />
+                  <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink">Top stories</span>
+                </div>
+                <Link href="/trending" className="text-[11px] font-semibold text-signal hover:underline flex items-center gap-1">
+                  See all <ArrowRight size={10} />
+                </Link>
+              </div>
+              <div className="flex-1 divide-y divide-line/60 px-5">
+                {topStories.map((article) => (
+                  <StoryCard key={article.id} article={article} size="row" />
+                ))}
+              </div>
             </div>
-            {topStories.map((article) => (
-              <StoryCard key={article.id} article={article} size="row" />
-            ))}
           </div>
         </div>
       </section>
 
+      {/* ── Second lead + grid ────────────────────────────── */}
       <section className="container-wide px-4 py-10 lg:py-14">
-        <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        {/* Section header */}
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-ink pb-3">
           <div>
-            <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-signal">More to read</p>
-            <h2 className="mt-1 font-display text-2xl font-bold text-ink md:text-3xl">Latest coverage</h2>
+            <div className="section-rule mb-2" />
+            <h2 className="font-display text-2xl font-bold text-ink">Latest coverage</h2>
           </div>
           <div className="flex flex-wrap gap-2">
-            {categories.slice(0, 5).map((category) => (
+            {categories.slice(0, 5).map((cat) => (
               <Link
-                key={category}
-                href={`/category/${category}`}
-                className="rounded-full border border-line bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.12em] text-ink/70 hover:border-ink hover:text-ink"
+                key={cat}
+                href={`/category/${cat}`}
+                className="rounded-full border border-line px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.14em] text-ink/60 transition hover:border-ink hover:text-ink"
               >
-                {category}
+                {cat}
               </Link>
             ))}
           </div>
         </div>
-        {grid.length > 0 ? (
-          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
-            {grid.map((article, index) => (
-              <Reveal key={article.id} delay={index * 0.07} direction="up">
+
+        {/* Featured second lead */}
+        {secondLead ? (
+          <Reveal direction="up" className="mb-8">
+            <StoryCard article={secondLead} size="featured" />
+          </Reveal>
+        ) : null}
+
+        {/* 3-col grid */}
+        {gridArticles.length > 0 ? (
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {gridArticles.map((article, index) => (
+              <Reveal key={article.id} delay={index * 0.06} direction="up">
                 <StoryCard article={article} size={index === 0 ? "large" : "medium"} />
               </Reveal>
             ))}
           </div>
-        ) : (
-          <p className="text-sm text-ink/55">More stories coming soon.</p>
-        )}
+        ) : null}
       </section>
 
-      {explainers.length > 0 ? (
-        <section className="border-y border-line bg-gradient-to-br from-white via-paper to-accent/5">
+      {/* ── Explainers ────────────────────────────────────── */}
+      {explainerItems.length > 0 ? (
+        <section className="border-y border-line bg-white">
           <div className="container-wide px-4 py-12 lg:py-16">
             <Reveal direction="up">
-              <div className="mb-6 flex items-end justify-between">
+              <div className="mb-8 flex items-end justify-between border-b border-ink pb-3">
                 <div>
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-accent">In plain English</p>
-                  <h2 className="mt-1 font-display text-2xl font-bold text-ink md:text-3xl">Stories, explained.</h2>
-                  <p className="mt-1 max-w-xl text-sm text-ink/65">
-                    Background, definitions, and analogies for the day&apos;s most complex stories.
+                  <div className="section-rule mb-2 bg-accent" />
+                  <h2 className="font-display text-2xl font-bold text-ink">Stories, explained.</h2>
+                  <p className="mt-1 text-sm text-ink/55">
+                    Background, definitions and context for the day&apos;s most complex stories.
                   </p>
                 </div>
-                <Link
-                  href="/trending"
-                  className="hidden items-center gap-2 text-sm font-semibold text-accent md:inline-flex"
-                >
-                  Browse explainers <ArrowRight size={14} />
+                <Link href="/trending" className="hidden items-center gap-1.5 text-[13px] font-semibold text-accent md:flex hover:underline">
+                  Browse all <ArrowRight size={13} />
                 </Link>
               </div>
             </Reveal>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-              {explainers.map((article, i) => (
-                <Reveal key={article.id} delay={i * 0.09} direction="up">
+            <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+              {explainerItems.map((article, i) => (
+                <Reveal key={article.id} delay={i * 0.08} direction="up">
                   <ExplainerCard article={article} />
                 </Reveal>
               ))}
@@ -159,8 +192,9 @@ export default async function HomePage() {
         </section>
       ) : null}
 
+      {/* ── Category rails ────────────────────────────────── */}
       {categories.slice(0, 3).map((category) =>
-        articlesByCategory[category] && articlesByCategory[category].length >= 2 ? (
+        articlesByCategory[category]?.length >= 2 ? (
           <CategoryRail key={category} category={category} articles={articlesByCategory[category]} />
         ) : null
       )}

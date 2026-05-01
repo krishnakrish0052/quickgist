@@ -31,7 +31,8 @@ export async function evaluateArticleAction(formData: FormData) {
 
 export async function publishArticleAction(formData: FormData) {
   const articleId = String(formData.get("articleId") ?? "");
-  await publishArticle(articleId, "admin");
+  // Admin force-publish bypasses quality gate
+  await publishArticle(articleId, "admin", true);
   revalidatePath("/admin");
   revalidatePath("/");
 }
