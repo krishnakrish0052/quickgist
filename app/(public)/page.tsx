@@ -55,8 +55,8 @@ export default async function HomePage() {
 
   const lead = published[0];
   const secondLead = published[1];
-  const topStories = published.slice(2, 6);
-  const gridArticles = published.slice(6, 12);
+  const topStories = published.slice(2, 9);
+  const gridArticles = published.slice(9, 15);
   const categories = Array.from(new Set(published.map((a) => a.category.toLowerCase())));
 
   const explainers = published
@@ -96,15 +96,22 @@ export default async function HomePage() {
       {/* ── Hero section ──────────────────────────────────── */}
       <section className="hero-bg border-b border-line">
         <div className="container-wide px-4 py-8 lg:py-12">
-          <div className="grid gap-6 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px]">
-            {/* Lead story */}
-            <Reveal direction="up">
-              <StoryCard article={lead} size="lead" priority />
-            </Reveal>
+          <div className="grid items-stretch gap-6 lg:grid-cols-[1fr_380px] xl:grid-cols-[1fr_420px]">
+            {/* Left col: lead + second lead stacked */}
+            <div className="flex flex-col gap-4">
+              <Reveal direction="up">
+                <StoryCard article={lead} size="lead" priority />
+              </Reveal>
+              {secondLead ? (
+                <Reveal direction="up" delay={0.08}>
+                  <StoryCard article={secondLead} size="featured" />
+                </Reveal>
+              ) : null}
+            </div>
 
-            {/* Top stories sidebar */}
-            <div className="flex flex-col gap-0 rounded-2xl border border-line/70 bg-white shadow-soft overflow-hidden">
-              <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+            {/* Right col: Top stories panel — h-full stretches to match left column */}
+            <div className="flex h-full flex-col rounded-2xl border border-line/70 bg-white shadow-soft overflow-hidden">
+              <div className="flex shrink-0 items-center justify-between border-b border-line px-5 py-3.5">
                 <div className="flex items-center gap-2">
                   <TrendingUp size={14} className="text-signal" />
                   <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-ink">Top stories</span>
@@ -113,7 +120,7 @@ export default async function HomePage() {
                   See all <ArrowRight size={10} />
                 </Link>
               </div>
-              <div className="flex-1 divide-y divide-line/60 px-5">
+              <div className="flex flex-1 flex-col justify-between divide-y divide-line/60 px-5">
                 {topStories.map((article) => (
                   <StoryCard key={article.id} article={article} size="row" />
                 ))}
@@ -123,9 +130,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ── Second lead + grid ────────────────────────────── */}
+      {/* ── Latest coverage grid ──────────────────────────── */}
       <section className="container-wide px-4 py-10 lg:py-14">
-        {/* Section header */}
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4 border-b border-ink pb-3">
           <div>
             <div className="section-rule mb-2" />
@@ -144,19 +150,11 @@ export default async function HomePage() {
           </div>
         </div>
 
-        {/* Featured second lead */}
-        {secondLead ? (
-          <Reveal direction="up" className="mb-8">
-            <StoryCard article={secondLead} size="featured" />
-          </Reveal>
-        ) : null}
-
-        {/* 3-col grid */}
         {gridArticles.length > 0 ? (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid auto-rows-fr gap-6 md:grid-cols-2 lg:grid-cols-3">
             {gridArticles.map((article, index) => (
-              <Reveal key={article.id} delay={index * 0.06} direction="up">
-                <StoryCard article={article} size={index === 0 ? "large" : "medium"} />
+              <Reveal key={article.id} delay={index * 0.06} direction="up" className="h-full">
+                <StoryCard article={article} size="medium" />
               </Reveal>
             ))}
           </div>

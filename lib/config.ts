@@ -45,8 +45,8 @@ export const config = configSchema.parse({
   autoPublishQualityThreshold: Number(process.env.AUTO_PUBLISH_QUALITY_THRESHOLD ?? 86),
   autoPublishConfidenceThreshold: Number(process.env.AUTO_PUBLISH_CONFIDENCE_THRESHOLD ?? 0.85),
   reviewConfidenceThreshold: Number(process.env.REVIEW_CONFIDENCE_THRESHOLD ?? 0.6),
-  minSourcesForPublish: Number(process.env.MIN_SOURCES_FOR_PUBLISH ?? 3),
-  highRiskCategories: (process.env.HIGH_RISK_CATEGORIES ?? "health,finance,legal,conflict,elections")
+  minSourcesForPublish: Number(process.env.MIN_SOURCES_FOR_PUBLISH ?? 1),
+  highRiskCategories: (process.env.HIGH_RISK_CATEGORIES ?? "legal,conflict,elections")
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean),

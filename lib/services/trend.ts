@@ -43,7 +43,7 @@ function clusterRawItems(items: RawItem[]): RawItem[][] {
   items.forEach((item) => {
     const text = `${item.title} ${item.summary}`;
     const cluster = clusters.find((candidate) =>
-      candidate.some((existing) => jaccardSimilarity(text, `${existing.title} ${existing.summary}`) >= 0.025)
+      candidate.some((existing) => jaccardSimilarity(text, `${existing.title} ${existing.summary}`) >= 0.12)
     );
 
     if (cluster) {
@@ -61,17 +61,20 @@ export async function detectTrendingTopics(rawItems?: RawItem[]): Promise<TrendD
   const now = nowIso();
   const clusters = clusterRawItems(inputItems);
   const topics = clusters.map((cluster) => {
+    const sorted = cluster.slice().sort((a, b) => scoreItem(b) - scoreItem(a));
+    const topItem = sorted[0];
     const allText = cluster.map((item) => `${item.title}. ${item.summary}`).join(" ");
     const keywords = pickTopKeywords(allText, 8);
     const category = inferCategory(allText);
     const risk = inferRisk(category, allText);
-    const headline = cluster.sort((a, b) => scoreItem(b) - scoreItem(a))[0].title;
+    const headline = topItem.title;
+    const summary = topItem.summary.trim().slice(0, 280);
 
     return {
       id: `topic-${stableHash(allText)}`,
       slug: slugify(headline),
       title: headline,
-      summary: cluster.map((item) => item.summary).join(" ").slice(0, 320),
+      summary,
       category,
       keywords,
       status: "clustered" as const,

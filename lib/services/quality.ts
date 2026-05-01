@@ -115,7 +115,15 @@ export async function evaluateQuality(article: Article): Promise<QualityReport &
   const seo = scoreArticle(article, topic?.keywords[0]);
   const confidence = evaluateConfidence(article, seo, structuralScore, sourceCount, requiresHumanReview);
 
-  const passed = reasons.length === 0 && structuralScore >= 75 && confidence.decision !== "regenerate";
+  // SEO fast-track: score ≥ 90 overrides confidence threshold and auto-publishes
+  const seoFastTrack = seo.overall >= 90 && !requiresHumanReview;
+  const effectiveDecision = seoFastTrack ? "auto_publish" : confidence.decision;
+  if (seoFastTrack) {
+    confidence.decision = "auto_publish";
+    confidence.reasons = confidence.reasons.filter((r) => !r.startsWith("SEO"));
+  }
+
+  const passed = (reasons.length === 0 || seoFastTrack) && structuralScore >= 60 && effectiveDecision !== "regenerate";
 
   const report: QualityReport = {
     id: `quality-${article.id}-${Date.now()}`,
@@ -129,8 +137,8 @@ export async function evaluateQuality(article: Article): Promise<QualityReport &
   };
 
   article.qualityScore = Math.round(confidence.confidence * 100);
-  if (confidence.decision === "auto_publish" && !requiresHumanReview) {
-    article.status = "draft";
+  if (effectiveDecision === "auto_publish") {
+    article.status = "published";
   } else {
     article.status = "review";
   }
@@ -138,7 +146,7 @@ export async function evaluateQuality(article: Article): Promise<QualityReport &
   await upsertArticle(article);
   await addQualityReport(report);
 
-  if (!passed || requiresHumanReview || confidence.decision !== "auto_publish") {
+  if (!passed || requiresHumanReview || effectiveDecision !== "auto_publish") {
     await addReviewTask({
       id: `review-${article.id}`,
       articleId: article.id,

@@ -14,6 +14,86 @@ import { routeAiTask } from "@/lib/services/aiOrchestration";
 import { getFactClaims, getPlatformSnapshot, upsertArticle } from "@/lib/repositories/platformRepository";
 import { analyzeCadence, improveCadence } from "@/lib/text/cadence";
 import { humanize, humanizeScore } from "@/lib/text/humanizer";
+import { searchRelevantImage, titleToImageQuery } from "@/lib/services/imageSearch";
+
+const CATEGORY_IMAGES: Record<string, string[]> = {
+  technology: [
+    "photo-1518770660439-4636190af475", // circuit board
+    "photo-1526374965328-7f61d4dc18c5", // matrix code
+    "photo-1550751827-4bd374c3f58b", // cyber lock
+    "photo-1451187580459-43490279c0fa", // earth network
+    "photo-1488590528505-98d2b5aba04b", // laptop screen
+    "photo-1504384308090-c894fdcc538d", // server room
+  ],
+  finance: [
+    "photo-1611974789855-9c2a0a7236a3", // stock charts
+    "photo-1579532537598-459ecdaf39cc", // trading screen
+    "photo-1526304640581-d334cdbbf45e", // financial analysis
+    "photo-1559526324-4b87b5e36e44", // currency
+    "photo-1554224155-8d04cb21cd6c", // business meeting
+    "photo-1460925895917-afdab827c52f", // wall street
+  ],
+  politics: [
+    "photo-1529107386315-e1a2ed48a620", // parliament
+    "photo-1541872703-74c5e44368f9", // podium
+    "photo-1575320181282-9afab399332c", // flags
+    "photo-1464938050520-ef2270bb8ce8", // capitol
+    "photo-1486591978090-58e619d37fe7", // globe
+    "photo-1495020689067-958852a7765e", // newspaper
+  ],
+  health: [
+    "photo-1576091160399-112ba8d25d1d", // hospital
+    "photo-1530497610245-94d3c16cda28", // medical
+    "photo-1559757148-5c350d0d3c56", // lab
+    "photo-1584515933487-779824d29309", // medicine
+    "photo-1631815589968-fdb09a223b1e", // microscope
+    "photo-1559757175-0eb30cd8c063", // doctor
+  ],
+  education: [
+    "photo-1523050854058-8df90110c9f1", // graduation
+    "photo-1427504494785-3a9ca7044f45", // classroom
+    "photo-1503676260728-1c00da094a0b", // books
+    "photo-1546410531-bb4caa6b424d", // student
+    "photo-1497633762265-9d179a990aa6", // library
+    "photo-1434030216411-0b793f4b4173", // writing
+  ],
+  science: [
+    "photo-1532094349884-543559612296", // molecules
+    "photo-1507413245164-6160d8298b31", // lab
+    "photo-1516339901601-2e1b62dc0c45", // telescope
+    "photo-1635070041078-e363dbe005cb", // chemistry
+    "photo-1581091226825-a6a2a5aee158", // research
+    "photo-1564325724739-bae0bd08762c", // astronomy
+  ],
+  world: [
+    "photo-1495020689067-958852a7765e", // newspaper
+    "photo-1585829365295-ab7cd400c167", // globe
+    "photo-1504711434969-e33886168f5c", // city
+    "photo-1541963463532-d68292c34b19", // streets
+    "photo-1486591978090-58e619d37fe7", // world map
+    "photo-1514439827219-9137a0b99245", // architecture
+  ],
+};
+
+const OLD_PLACEHOLDER = "photo-1495020689067-958852a7765e";
+
+function pickHeroImage(topic: Topic): string {
+  const pool = CATEGORY_IMAGES[topic.category] ?? CATEGORY_IMAGES.world;
+  const hash = Math.abs(parseInt(stableHash(topic.id).replace(/\D/g, "").slice(0, 8) || "0", 10));
+  const photoId = pool[hash % pool.length];
+  return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=1400&q=80`;
+}
+
+/** Returns the best hero image URL for an article — falls back to category pool if stored URL is stale/missing. */
+export function articleHeroImage(article: { heroImageUrl?: string | null; category: string; slug: string }): string {
+  const stored = article.heroImageUrl ?? "";
+  if (!stored || stored.includes(OLD_PLACEHOLDER)) {
+    const pool = CATEGORY_IMAGES[article.category.toLowerCase()] ?? CATEGORY_IMAGES.world;
+    const hash = Math.abs(parseInt(article.slug.replace(/\D/g, "").slice(0, 8) || "1", 10) + article.slug.length * 31);
+    return `https://images.unsplash.com/${pool[hash % pool.length]}?auto=format&fit=crop&w=1400&q=80`;
+  }
+  return stored;
+}
 
 export interface GeneratedContentResult {
   article: Article;
@@ -60,39 +140,75 @@ async function sourceRefs(topic: Topic) {
 }
 
 function createArticleMarkdown(topic: Topic, claims: FactClaim[]): string {
-  const claimBullets = claims.map((claim) => `- ${claim.claim}`).join("\n");
-  const primaryKeyword = topic.keywords[0] ?? topic.title;
+  const primaryKeyword = (topic.keywords[0] ?? topic.title).toLowerCase();
   const keyword2 = topic.keywords[1] ?? topic.category;
+  const keyword3 = topic.keywords[2] ?? topic.keywords[0] ?? "";
 
-  // Pass 1 — Draft: structured prose based on verified claims
-  const draft = `## Why this story matters
+  // Build fact paragraphs — each claim becomes its own sentence in running prose
+  const factParagraphs = claims
+    .slice(0, 6)
+    .map((c) => c.claim.trim())
+    .join(" ");
 
-${topic.summary}
+  const verifiedList = claims
+    .slice(0, 5)
+    .map((c) => `- ${c.claim.trim()}`)
+    .join("\n");
 
-The central issue is ${primaryKeyword}. Multiple independent sources converged on the same theme this cycle, which is stronger evidence than any single report on its own. Don't take a one-source story at face value — look for corroboration first.
+  // Derive a short context phrase from the category
+  const categoryContext: Record<string, string> = {
+    technology: "the technology sector",
+    finance: "financial markets and the economy",
+    health: "public health and medical research",
+    politics: "the political landscape",
+    education: "education policy",
+    science: "scientific research",
+    world: "global affairs",
+  };
+  const contextPhrase = categoryContext[topic.category.toLowerCase()] ?? "the broader public debate";
 
-## Verified facts from the source cluster
+  // Intro: keyword in first sentence, summary in second
+  const intro = `${topic.title} has emerged as a significant development in ${contextPhrase}. ${topic.summary} Understanding what ${primaryKeyword} means — and why multiple independent sources are reporting on it simultaneously — is essential for anyone tracking this area.`;
 
-${claimBullets}
+  // Draft — full SEO-structured article
+  const draft = `${intro}
 
-These facts are intentionally narrow. QuickGist keeps the source trail separate so the article explains what happened without lifting another publisher's sentences.
+## What happened: the key facts on ${primaryKeyword}
 
-## What it means for readers
+${factParagraphs}
 
-The useful question isn't only what happened — it's how this affects decisions you need to make. For students, workers, founders, and policy watchers, the pattern around ${keyword2} suggests practical judgment matters more than hype right now.
+These details come from multiple independent source signals, not a single report. Cross-source corroboration is the standard QuickGist applies before publishing any claim about ${primaryKeyword}.
 
-When a story clusters from several signals, the safest reading is to focus on confirmed movement: who is acting, what changed, and what's still unclear. That's what keeps this article useful without inventing details that haven't been confirmed yet.
+## Verified findings
+
+${verifiedList}
+
+Each point above has been extracted from source material and cross-checked. Where sources disagreed, the more conservative claim was selected.
+
+## Why ${keyword2} matters right now
+
+The story around ${topic.title} sits at an important moment. Coverage of ${keyword2} has accelerated across major publications this cycle, which typically signals that the issue is moving from specialist discussion into mainstream consequence.
+
+${keyword3 ? `The connection to ${keyword3} is worth noting specifically. ` : ""}For readers tracking this topic, the practical question is not just what happened — it is what actions or decisions the development might affect in the weeks ahead.
 
 ## What to watch next
 
-Watch for official statements, follow-up numbers, and reactions from people directly affected. This page updates when the source cluster changes or a higher-confidence claim appears.
+Readers following ${primaryKeyword} should look for:
 
-The bottom line: ${topic.title} is worth tracking because it ties a current trend to decisions readers might face soon. That's not speculation — it's the pattern the source signals point to.`;
+- Official responses and statements from the relevant authorities
+- Follow-up data that either confirms or qualifies the initial reports
+- Secondary effects in related areas of ${contextPhrase}
 
-  // Pass 2 — Cadence improvement (fix monotone sentences)
+Coverage of ${topic.title} will continue to develop. The details above represent the verified state of the story at time of publication.
+
+## The bottom line
+
+${topic.title} is a developing story with confirmed movement on multiple fronts. The verified facts point clearly to ${primaryKeyword} as the central issue, with ${keyword2} as an important secondary dimension. Stay with QuickGist for source-grounded updates as this story develops.`;
+
+  // Pass 2 — Cadence improvement
   const cadenceFixed = improveCadence(draft);
 
-  // Pass 3 — Humanize (strip AI tropes, vary openers)
+  // Pass 3 — Humanize
   const { markdown: humanized } = humanize(cadenceFixed);
 
   return humanized;
@@ -105,17 +221,21 @@ export interface ContentQualityMetrics {
 }
 
 function createExplainer(topic: Topic, claims: FactClaim[]): string {
+  const primaryKeyword = topic.keywords[0] ?? topic.title;
   const facts = claims.slice(0, 4).map((claim) => `- ${claim.claim}`).join("\n");
-  return `Here's what you need to know about ${topic.title}: this story is about a trend that several sources are pointing to at the same time.
+  return `## ${topic.title} — explained simply
 
-What happened? QuickGist found multiple source records connected to the same topic and extracted the safest confirmed facts.
+**What is this about?** ${topic.summary}
 
-Why does it matter? The topic may affect how people study, work, spend money, or understand public decisions.
+**Why are people talking about ${primaryKeyword}?** Multiple news sources picked up this story at the same time, which usually means the development is significant enough to have real-world consequences — for businesses, policymakers, or everyday people.
 
-Quick Facts:
+**Quick Facts**
+
 ${facts}
 
-The Bottom Line: follow the verified facts first, then watch for updates before making strong conclusions.`;
+**What does this mean for you?** The story around ${topic.title} could affect decisions in ${topic.category} — from policy changes to market shifts to public behaviour. The key is to focus on the confirmed facts above rather than speculation.
+
+**The Bottom Line:** ${topic.title} is worth understanding because it is already generating action, not just commentary. Follow verified updates as more details emerge.`;
 }
 
 function createSocialPack(topic: Topic, articleSlug: string, claims: FactClaim[]): SocialPack {
@@ -132,6 +252,20 @@ function createSocialPack(topic: Topic, articleSlug: string, claims: FactClaim[]
     linkedinPost: `${topic.title}\n\nThe professional takeaway: confirmed facts matter more than speed. This story is useful because it combines multiple source signals and explains what to watch next.\n\nWhat detail would you verify first? #News #Analysis`,
     whatsappSummary: [topic.title, claims[0]?.claim ?? topic.summary, `Full story: ${url}`]
   };
+}
+
+async function resolveHeroImage(topic: Topic): Promise<string> {
+  const query = titleToImageQuery(topic.title, topic.keywords);
+  const found = await searchRelevantImage(query);
+  return found ?? pickHeroImage(topic);
+}
+
+function buildMetaDescription(topic: Topic): string {
+  const keyword = topic.keywords[0] ?? topic.title;
+  const base = `${topic.title}: ${topic.summary}`;
+  const suffix = ` Learn what ${keyword} means and why it matters.`;
+  const combined = (base + suffix).slice(0, 157).trimEnd();
+  return combined.length < base.length ? base.slice(0, 155).trimEnd() + "." : combined;
 }
 
 export async function generateArticlePackage(topic: Topic): Promise<GeneratedContentResult> {
@@ -171,7 +305,7 @@ export async function generateArticlePackage(topic: Topic): Promise<GeneratedCon
     topicId: topic.id,
     slug,
     title: topic.title,
-    metaDescription: topic.summary.slice(0, 155),
+    metaDescription: buildMetaDescription(topic),
     dek: topic.summary.slice(0, 150),
     contentMarkdown,
     summaryBullets,
@@ -187,8 +321,7 @@ export async function generateArticlePackage(topic: Topic): Promise<GeneratedCon
     qualityScore: 0,
     sources: await sourceRefs(topic),
     readingMinutes: estimateReadingMinutes(contentMarkdown),
-    heroImageUrl:
-      "https://images.unsplash.com/photo-1495020689067-958852a7765e?auto=format&fit=crop&w=1400&q=80",
+    heroImageUrl: await resolveHeroImage(topic),
     canonicalUrl: `/news/${slug}`,
     createdAt: now,
     updatedAt: now

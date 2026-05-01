@@ -41,39 +41,39 @@ export function extractDomain(url: string): string {
   }
 }
 
-export function tokenSet(value: string): Set<string> {
-  const stopWords = new Set([
-    "the",
-    "a",
-    "an",
-    "and",
-    "or",
-    "of",
-    "to",
-    "in",
-    "for",
-    "on",
-    "with",
-    "by",
-    "from",
-    "as",
-    "is",
-    "are",
-    "was",
-    "were",
-    "be",
-    "this",
-    "that",
-    "it",
-    "its"
-  ]);
+const STOP_WORDS = new Set([
+  // articles / determiners
+  "the","a","an","this","that","these","those","my","your","his","her","its","our","their",
+  // conjunctions / prepositions
+  "and","or","but","nor","so","yet","for","of","to","in","on","at","by","from","with",
+  "as","into","onto","upon","about","above","below","between","through","during","before",
+  "after","since","until","while","although","because","though","unless","whether","if",
+  "then","than","when","where","which","who","whom","whose","what","how","why",
+  // auxiliaries / modals
+  "is","are","was","were","be","been","being","have","has","had","do","does","did",
+  "will","would","could","should","may","might","shall","must","can","need","dare",
+  "ought","used",
+  // pronouns
+  "it","its","he","she","we","they","them","him","us","me","you","i",
+  // common high-frequency nouns / verbs that add no topic signal
+  "said","say","says","told","tell","know","get","got","make","made","take","took",
+  "come","came","go","went","see","saw","think","thought","look","looked","want",
+  "new","also","just","more","most","some","any","all","no","not","up","out",
+  "off","over","into","down","back","way","other","first","last","now","only",
+  "even","still","such","own","same","much","many","both","each","every","been",
+  "reading","having","being","doing","going","saying","making","taking","getting",
+  // 2-char tokens to exclude
+  "of","to","in","is","it","be","as","at","so","we","he","by","or","on","do",
+  "if","me","my","up","an","go","no","us","am","pm",
+]);
 
+export function tokenSet(value: string): Set<string> {
   return new Set(
     value
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, " ")
       .split(/\s+/)
-      .filter((token) => token.length > 1 && !stopWords.has(token))
+      .filter((token) => token.length > 3 && !STOP_WORDS.has(token))
   );
 }
 
@@ -92,13 +92,13 @@ export function jaccardSimilarity(left: string, right: string): number {
 }
 
 export function pickTopKeywords(text: string, limit = 8): string[] {
+  const validTokens = tokenSet(text);
   const counts = new Map<string, number>();
-  tokenSet(text).forEach((token) => counts.set(token, 1));
   text
     .toLowerCase()
     .replace(/[^a-z0-9\s]/g, " ")
     .split(/\s+/)
-    .filter((token) => tokenSet(text).has(token))
+    .filter((token) => validTokens.has(token))
     .forEach((token) => counts.set(token, (counts.get(token) ?? 0) + 1));
 
   return [...counts.entries()]
