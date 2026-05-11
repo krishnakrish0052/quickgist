@@ -16,9 +16,9 @@ export default async function AdminQualityPage() {
   return (
     <div>
       <header className="mb-8">
-        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-ink/55">Operations</p>
-        <h1 className="mt-1 font-display text-3xl font-bold text-ink">Quality &amp; SEO</h1>
-        <p className="mt-2 max-w-2xl text-sm text-ink/65">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--ink-faint)]">Operations</p>
+        <h1 className="mt-1 font-display text-3xl font-bold text-[var(--ink)]">Quality &amp; SEO</h1>
+        <p className="mt-2 max-w-2xl text-sm text-[var(--ink-soft)]">
           Confidence routing decides whether a generated article auto-publishes, goes to human review, or gets
           regenerated. Thresholds: <strong>≥{Math.round(config.autoPublishConfidenceThreshold * 100)}</strong> auto,{" "}
           <strong>≥{Math.round(config.reviewConfidenceThreshold * 100)}</strong> review, below → regenerate.
@@ -27,7 +27,7 @@ export default async function AdminQualityPage() {
 
       <div className="grid gap-4">
         {qualityReports.length === 0 ? (
-          <p className="text-sm text-ink/55">No quality reports yet — run the pipeline to generate articles.</p>
+          <p className="text-sm text-[var(--ink-faint)]">No quality reports yet — run the pipeline to generate articles.</p>
         ) : null}
         {qualityReports.map((report) => {
           const article = articles.find((candidate) => candidate.id === report.articleId);
@@ -66,7 +66,7 @@ export default async function AdminQualityPage() {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-signal">
                     {article.category} • {article.status}
                   </p>
-                  <h2 className="mt-1 font-display text-xl font-bold text-ink">{article.title}</h2>
+                  <h2 className="mt-1 font-display text-xl font-bold text-[var(--ink)]">{article.title}</h2>
                 </div>
                 <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${decisionStyle}`}>
                   <DecisionIcon size={13} />
@@ -82,9 +82,9 @@ export default async function AdminQualityPage() {
               </div>
 
               <div className="mt-5 grid gap-4 md:grid-cols-2">
-                <div className="rounded-lg bg-paper p-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">SEO breakdown</h3>
-                  <ul className="mt-2 grid gap-1 text-sm text-ink/80">
+                <div className="rounded-lg bg-[var(--bg)] p-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-faint)]">SEO breakdown</h3>
+                  <ul className="mt-2 grid gap-1 text-sm text-[var(--ink-soft)]">
                     <li>Keyword density: {(seo.keyword.density * 100).toFixed(2)}%</li>
                     <li>Title score: {seo.title.score}/100</li>
                     <li>Meta score: {seo.meta.score}/100</li>
@@ -93,23 +93,23 @@ export default async function AdminQualityPage() {
                     <li>Internal links: {seo.internalLinks.count}</li>
                   </ul>
                 </div>
-                <div className="rounded-lg bg-paper p-4">
-                  <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/55">Decision reasoning</h3>
+                <div className="rounded-lg bg-[var(--bg)] p-4">
+                  <h3 className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-faint)]">Decision reasoning</h3>
                   {confidence.reasons.length === 0 ? (
-                    <p className="mt-2 text-sm text-ink/65">All checks clean.</p>
+                    <p className="mt-2 text-sm text-[var(--ink-soft)]">All checks clean.</p>
                   ) : (
-                    <ul className="mt-2 grid gap-1 text-sm text-ink/80">
+                    <ul className="mt-2 grid gap-1 text-sm text-[var(--ink-soft)]">
                       {confidence.reasons.map((reason) => (
                         <li key={reason}>• {reason}</li>
                       ))}
                     </ul>
                   )}
                   {seo.suggestions.length > 0 ? (
-                    <div className="mt-3 border-t border-line pt-2">
-                      <h4 className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/55">
+                    <div className="mt-3 border-t border-[var(--line)] pt-2">
+                      <h4 className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-faint)]">
                         Suggestions
                       </h4>
-                      <ul className="mt-1 grid gap-1 text-sm text-ink/75">
+                      <ul className="mt-1 grid gap-1 text-sm text-[var(--ink-soft)]">
                         {seo.suggestions.slice(0, 3).map((s) => (
                           <li key={s}>· {s}</li>
                         ))}
@@ -128,9 +128,9 @@ export default async function AdminQualityPage() {
 
 function ScoreBlock({ label, value, suffix }: { label: string; value: number; suffix: string }) {
   return (
-    <div className="rounded-lg bg-paper p-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-ink/55">{label}</p>
-      <p className="mt-1 font-display text-2xl font-bold text-ink">
+    <div className="rounded-lg bg-[var(--bg)] p-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--ink-faint)]">{label}</p>
+      <p className="mt-1 font-display text-2xl font-bold text-[var(--ink)]">
         {value}
         {suffix}
       </p>

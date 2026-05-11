@@ -35,18 +35,18 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen place-items-center bg-paper px-4">
-      <div className="w-full max-w-md rounded-xl border border-line bg-white p-8 shadow-soft">
+    <main className="grid min-h-screen place-items-center bg-[var(--bg)] px-4">
+      <div className="w-full max-w-md rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-8 shadow-lg">
         <div className="mb-6 flex items-center gap-3">
-          <span className="grid h-10 w-10 place-items-center rounded-md bg-ink text-white">
+          <span className="grid h-10 w-10 place-items-center rounded-md bg-[var(--bg-elevated)] text-[var(--ink)]">
             <ShieldCheck size={18} />
           </span>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/60">QuickGist COS</p>
-            <h1 className="text-xl font-semibold text-ink">Operator console</h1>
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--ink-muted)]">QuickGist COS</p>
+            <h1 className="text-xl font-semibold text-[var(--ink)]">Operator console</h1>
           </div>
         </div>
-        <p className="mb-6 text-sm leading-6 text-ink/70">
+        <p className="mb-6 text-sm leading-6 text-[var(--ink-soft)]">
           The operations dashboard, review queue, and pipeline controls are restricted. Enter your admin key to
           continue. The public site at{" "}
           <a href="/" className="link">
@@ -55,9 +55,9 @@ export default function AdminLoginPage() {
           remains accessible without auth.
         </p>
         <form onSubmit={handleSubmit} className="grid gap-3">
-          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-ink/60">Admin key</label>
-          <div className="flex items-center gap-2 rounded-md border border-line bg-paper px-3 py-2">
-            <LockKeyhole size={16} className="text-ink/60" />
+          <label className="text-xs font-semibold uppercase tracking-[0.14em] text-[var(--ink-muted)]">Admin key</label>
+          <div className="flex items-center gap-2 rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 py-2">
+            <LockKeyhole size={16} className="text-[var(--ink-muted)]" />
             <input
               autoFocus
               type="password"
@@ -72,7 +72,7 @@ export default function AdminLoginPage() {
           <button
             type="submit"
             disabled={pending || !key}
-            className="mt-2 inline-flex items-center justify-center gap-2 rounded-md bg-ink px-4 py-3 text-sm font-semibold text-white disabled:opacity-60"
+            className="mt-2 inline-flex items-center justify-center gap-2 rounded-md bg-[var(--bg-elevated)] px-4 py-3 text-sm font-semibold text-[var(--ink)] disabled:opacity-60"
           >
             {pending ? "Signing in…" : "Sign in"}
           </button>

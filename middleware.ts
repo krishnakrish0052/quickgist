@@ -26,9 +26,13 @@ function isAuthenticated(request: NextRequest): boolean {
 export function middleware(request: NextRequest) {
   const { pathname, search } = request.nextUrl;
 
+  // Set x-pathname header so server components can detect the current route
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set("x-pathname", pathname);
+
   // Admin pages
   if (pathname.startsWith("/admin")) {
-    if (pathname === "/admin/login" || pathname === "/admin/logout") return NextResponse.next();
+    if (pathname === "/admin/login" || pathname === "/admin/logout") return NextResponse.next({ request: { headers: requestHeaders } });
     if (!isAuthenticated(request)) {
       const url = request.nextUrl.clone();
       url.pathname = "/admin/login";
@@ -55,19 +59,18 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  return NextResponse.next();
+  return NextResponse.next({ request: { headers: requestHeaders } });
 }
 
 export const config = {
   matcher: [
-    "/admin/:path*",
-    "/api/admin/:path*",
-    "/api/ingest/:path*",
-    "/api/trending/detect",
-    "/api/generate/:path*",
-    "/api/quality/:path*",
-    "/api/publish/:path*",
-    "/api/distribution/:path*",
-    "/api/pipeline/:path*"
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * - public files (images, fonts, etc.)
+     */
+    "/((?!_next/static|_next/image|favicon.ico|logo.svg|.*\\.(?:png|jpg|jpeg|gif|webp|avif|ico|svg|woff|woff2|ttf|eot)).*)",
   ]
 };

@@ -1,3 +1,5 @@
+import { MARKDOWN_ARTIFACT_PATTERNS } from "@/lib/text/ai-artifacts";
+
 /**
  * Anti-AI-trope filter and human writing pass.
  * Removes phrases that pattern-match to LLM output and replaces with
@@ -89,6 +91,24 @@ export interface HumanizationReport {
 export function humanize(markdown: string): HumanizationReport {
   let text = markdown;
   let tropesRemoved = 0;
+
+  // --- Pass 0: Markdown artifact cleanup (must run first) ---
+
+  // Strip all MARKDOWN_ARTIFACT_PATTERNS
+  for (const pattern of MARKDOWN_ARTIFACT_PATTERNS) {
+    text = text.replace(pattern, "");
+  }
+
+  // Convert bold-labeled callouts to proper headings
+  text = text.replace(/\*\*(Key Takeaway|Note|Important|TL;DR|Summary|Bottom Line):?\*\*\s*/gi, "### $1\n\n");
+
+  // Strip orphan bold/italic markers (lines that are only markers)
+  text = text.replace(/^[\*\s]+$/gm, "");
+
+  // Remove lines that are only ** or * characters
+  text = text.replace(/^\*{1,3}\s*$/gm, "");
+
+  // --- Pass 1: Trope replacements ---
 
   for (const { pattern, replacement } of TROPE_REPLACEMENTS) {
     const before = text;

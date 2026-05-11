@@ -5,8 +5,11 @@
     "world": "世界",
     "business": "ビジネス",
     "technology": "テクノロジー",
+    "science": "科学",
     "tools": "ツール",
-    "subscribe": "購読する"
+    "subscribe": "購読する",
+    "tagline": "独立系ニュース · 検証済みソース",
+    "independentVerified": "独立 · 検証済み"
   },
   "home": {
     "topStories": "トップニュース",
@@ -17,7 +20,7 @@
     "explained": "解説記事",
     "browseExplainers": "解説を見る",
     "warmingUp": "ニュースルームを準備中。",
-    "warmingUpDesc": "まだ公開記事がありません。"
+    "warmingUpDesc": "まだ公開記事がありません。コンテンツを生成するにはパイプラインを実行してください。"
   },
   "article": {
     "readMore": "続きを読む",
@@ -25,30 +28,51 @@
     "minRead": "分で読める",
     "relatedStories": "関連記事",
     "sources": "情報源",
-    "eli5": "簡単に説明する"
+    "eli5": "簡単に説明する",
+    "keyPoints": "ポイント",
+    "backToHome": "戻る",
+    "wantExplained": "この記事を簡単に説明してほしいですか？",
+    "readExplainer": "解説を読む",
+    "shareStory": "この記事をシェア",
+    "topics": "トピック",
+    "dailyBrief": "デイリーブリーフ",
+    "subscribeFree": "無料購読"
   },
   "footer": {
-    "tagline": "根拠ある報道を、わかりやすく。",
+    "tagline": "複数の情報源から検証された独立系ニュースを、編集の明瞭さとともにお届けします。ノイズも無駄もなく、本当に重要なストーリーだけを。",
+    "news": "ニュース",
+    "toolsHeading": "ツール",
+    "company": "会社情報",
+    "latest": "最新ニュース",
+    "trending": "トレンド",
+    "world": "世界",
+    "business": "ビジネス",
+    "technology": "テクノロジー",
+    "science": "科学",
+    "freeTools": "無料ツール",
+    "articleSummarizer": "記事要約ツール",
+    "newsletterLink": "ニュースレター",
+    "rssFeed": "RSSフィード",
     "about": "QuickGistについて",
-    "privacy": "プライバシー",
+    "privacy": "プライバシーポリシー",
     "terms": "利用規約",
     "contact": "お問い合わせ",
     "disclaimer": "免責事項",
-    "newsletter": "ニュースレター",
-    "copyright": "© {year} QuickGist. All rights reserved."
+    "copyright": "© {year} QuickGist. All rights reserved.",
+    "verifiedSources": "記事は公開前に複数の独立した情報源から検証されています。"
   },
   "newsletter": {
     "heading": "毎日、最新情報をお届けします。",
-    "subheading": "その日の最重要ニュースをあなたの受信箱へ。",
+    "subheading": "その日最も重要なニュースを受信箱へ — ソースに基づき、意見は交えず。",
     "placeholder": "your@email.com",
     "cta": "無料で購読する",
-    "success": "登録完了です。",
-    "error": "エラーが発生しました。再試行してください。"
+    "success": "登録が完了しました。受信箱をご確認ください。",
+    "error": "エラーが発生しました。もう一度お試しください。"
   },
   "tools": {
     "heading": "QuickGist ツール",
     "subheading": "読解・調査・検証のための無料AIツール。",
     "summarize": "記事を要約する",
-    "summarizeDesc": "URLやテキストを貼り付けると、数秒でクリーンな要約が得られます。"
+    "summarizeDesc": "URLやテキストを貼り付けると、数秒で出典付きのクリーンな要約が得られます。"
   }
 }

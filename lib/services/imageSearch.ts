@@ -106,11 +106,20 @@ async function searchUnsplash(query: string): Promise<string | null> {
   }
 }
 
+let _warnedMissingImageKey = false;
+
 /**
  * Fetch the most relevant news photo for a given search query.
  * Tries Pexels → Pixabay → Unsplash in order. Returns null if none configured.
  */
 export async function searchRelevantImage(query: string): Promise<string | null> {
+  if (!_warnedMissingImageKey && !process.env.PEXELS_API_KEY && !process.env.PIXABAY_API_KEY && !process.env.UNSPLASH_ACCESS_KEY) {
+    _warnedMissingImageKey = true;
+    console.warn(
+      "[imageSearch] No image API key configured. Articles will use Unsplash category fallbacks. " +
+        "Sign up for a free key at https://www.pexels.com/api/ (200 req/hr) — set PEXELS_API_KEY in .env."
+    );
+  }
   return (
     (await searchPexels(query)) ??
     (await searchPixabay(query)) ??

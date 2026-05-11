@@ -21,7 +21,7 @@ export function LocaleSwitcher({ currentLocale }: LocaleSwitcherProps) {
         defaultValue={currentLocale}
         onChange={handleChange}
         aria-label="Select language"
-        className="cursor-pointer appearance-none bg-transparent py-1 pl-0.5 pr-4 text-xs font-semibold text-ink/70 hover:text-ink focus:outline-none"
+        className="cursor-pointer appearance-none bg-transparent py-1 pl-0.5 pr-4 text-xs font-semibold text-[var(--ink-soft)] hover:text-[var(--ink)] focus:outline-none"
         style={{
           backgroundImage:
             "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230f0f10'/%3E%3C/svg%3E\")",

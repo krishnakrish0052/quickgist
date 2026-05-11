@@ -159,6 +159,7 @@ export interface MediaAsset {
   url: string;
   provider: "r2" | "remote" | "placeholder";
   attribution: string;
+  generatedBy?: "ai" | "stock";
   createdAt: string;
 }
 

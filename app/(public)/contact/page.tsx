@@ -13,15 +13,15 @@ export default function ContactPage() {
   return (
     <main className="container-shell max-w-3xl py-14">
       <p className="text-sm font-semibold uppercase tracking-[0.14em] text-signal">Contact</p>
-      <h1 className="mt-2 text-4xl font-bold tracking-tight text-ink">Get in touch</h1>
-      <p className="mt-4 text-base leading-8 text-ink/65">
+      <h1 className="mt-2 text-4xl font-bold tracking-tight text-[var(--ink)]">Get in touch</h1>
+      <p className="mt-4 text-base leading-8 text-[var(--ink-soft)]">
         We read every message and respond within one business day.
       </p>
 
       <div className="mt-10 grid gap-8 sm:grid-cols-2">
-        <div className="rounded-xl border border-line bg-white p-6">
-          <h2 className="text-base font-bold text-ink">Editorial & corrections</h2>
-          <p className="mt-2 text-sm leading-7 text-ink/65">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-6">
+          <h2 className="text-base font-bold text-[var(--ink)]">Editorial & corrections</h2>
+          <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
             Spotted a factual error? Have additional context on a story? Reach our editorial desk.
           </p>
           <a
@@ -32,9 +32,9 @@ export default function ContactPage() {
           </a>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-6">
-          <h2 className="text-base font-bold text-ink">Tips & story leads</h2>
-          <p className="mt-2 text-sm leading-7 text-ink/65">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-6">
+          <h2 className="text-base font-bold text-[var(--ink)]">Tips & story leads</h2>
+          <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
             Have a story we should be covering? Share your tip with our newsroom.
           </p>
           <a
@@ -45,9 +45,9 @@ export default function ContactPage() {
           </a>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-6">
-          <h2 className="text-base font-bold text-ink">Partnerships & media</h2>
-          <p className="mt-2 text-sm leading-7 text-ink/65">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-6">
+          <h2 className="text-base font-bold text-[var(--ink)]">Partnerships & media</h2>
+          <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
             Content syndication, advertising, or press enquiries about QuickGist.
           </p>
           <a
@@ -58,9 +58,9 @@ export default function ContactPage() {
           </a>
         </div>
 
-        <div className="rounded-xl border border-line bg-white p-6">
-          <h2 className="text-base font-bold text-ink">Privacy & data</h2>
-          <p className="mt-2 text-sm leading-7 text-ink/65">
+        <div className="rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-6">
+          <h2 className="text-base font-bold text-[var(--ink)]">Privacy & data</h2>
+          <p className="mt-2 text-sm leading-7 text-[var(--ink-soft)]">
             Data access requests, cookie enquiries, or privacy-related matters.
           </p>
           <a

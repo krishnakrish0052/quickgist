@@ -5,7 +5,7 @@ import { runContentPipeline } from "@/workers/pipeline";
 import { evaluateQuality } from "@/lib/services/quality";
 import { publishArticle } from "@/lib/services/publishing";
 import { scheduleDistribution } from "@/lib/services/distribution";
-import { getArticleById, seedRepository } from "@/lib/repositories/platformRepository";
+import { deleteArticle, getArticleById, seedRepository } from "@/lib/repositories/platformRepository";
 
 export async function runPipelineAction(formData: FormData) {
   await runContentPipeline({
@@ -31,7 +31,15 @@ export async function evaluateArticleAction(formData: FormData) {
 
 export async function publishArticleAction(formData: FormData) {
   const articleId = String(formData.get("articleId") ?? "");
-  // Admin force-publish bypasses quality gate
+  const article = await getArticleById(articleId);
+  if (!article) return;
+
+  // Run quality evaluation first if the article was never scored (e.g., freshly generated).
+  // This ensures admin-published articles always carry a real quality score.
+  if (article.qualityScore === 0) {
+    await evaluateQuality(article);
+  }
+
   await publishArticle(articleId, "admin", true);
   revalidatePath("/admin");
   revalidatePath("/");
@@ -47,4 +55,11 @@ export async function scheduleDistributionAction(formData: FormData) {
     });
   }
   revalidatePath("/admin");
+}
+
+export async function deleteArticleAction(formData: FormData) {
+  const articleId = String(formData.get("articleId") ?? "");
+  await deleteArticle(articleId);
+  revalidatePath("/admin");
+  revalidatePath("/");
 }

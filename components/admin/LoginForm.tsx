@@ -35,8 +35,8 @@ export function LoginForm({ next }: { next: string }) {
   }
 
   return (
-    <form onSubmit={onSubmit} className="rounded-xl border border-line bg-white p-6 shadow-soft">
-      <label className="text-xs font-semibold uppercase tracking-[0.16em] text-ink/55" htmlFor="admin-key">
+    <form onSubmit={onSubmit} className="rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-6 shadow-lg">
+      <label className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--ink-faint)]" htmlFor="admin-key">
         Admin API key
       </label>
       <input
@@ -46,14 +46,14 @@ export function LoginForm({ next }: { next: string }) {
         value={key}
         onChange={(event) => setKey(event.target.value)}
         required
-        className="mt-2 w-full rounded-md border border-line bg-paper px-3 py-3 text-sm outline-none focus:border-ink"
+        className="mt-2 w-full rounded-md border border-[var(--line)] bg-[var(--bg)] px-3 py-3 text-sm outline-none focus:border-ink"
         placeholder="••••••••••"
       />
       {error ? <p className="mt-3 text-sm text-alert">{error}</p> : null}
       <button
         type="submit"
         disabled={pending || !key}
-        className="mt-4 w-full rounded-md bg-ink px-4 py-3 text-sm font-semibold text-paper transition hover:bg-signal disabled:opacity-50"
+        className="mt-4 w-full rounded-md bg-[var(--bg-elevated)] px-4 py-3 text-sm font-semibold text-paper transition hover:bg-signal disabled:opacity-50"
       >
         {pending ? "Signing in…" : "Sign in"}
       </button>

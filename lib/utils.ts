@@ -73,7 +73,7 @@ export function tokenSet(value: string): Set<string> {
       .toLowerCase()
       .replace(/[^a-z0-9\s]/g, " ")
       .split(/\s+/)
-      .filter((token) => token.length > 3 && !STOP_WORDS.has(token))
+      .filter((token) => token.length > 2 && !STOP_WORDS.has(token))
   );
 }
 

@@ -1,204 +1,159 @@
-# QuickGist COS — Phase-2 Upgrade Plan
+# QuickGist — Architecture Refactor Log
 
-## Why this round
+## Phase 1 → Phase 2 (May 2026)
 
-The Phase-1 release ([COMPLETE_PLAN](../README.md)) gave us the skeleton: separation of public / admin / MCP, confidence-routed quality gate, 20 MCP tools, no-Docker setup. The user's review on 2026-04-28 surfaced six gaps that block the product from feeling like a real Content Operating Service:
+The Phase-1 release shipped a working content pipeline with 8 autonomous agent subprocesses, a custom HTTP coordinator server, and 31 MCP tools. Review uncovered several structural issues that block production readiness. This log documents what was changed and why.
 
-1. **MCP isn't actually exercised end-to-end** — only via local smoke scripts; never tested with real generation cycles.
-2. **UI is "basic"** — needs animation, motion design, scroll-driven transitions worthy of the magazine framing.
-3. **Content isn't real news** — the seed feeds are demo data; we need true RSS ingestion against major newsrooms.
-4. **No multi-language / country awareness** — every reader sees the same English copy regardless of locale.
-5. **Not autonomous** — the pipeline only runs when triggered. The "operating service" framing demands a scheduler.
-6. **Article quality** — needs to read 100% human and be SEO-perfect, not just pass a structural check.
+## Architecture changes
 
-This plan adapts current best-practice research (RSS sources, next-intl routing, motion library, NewsArticle schema, Anthropic prompt engineering, MCP scheduler patterns) to ship those gaps as a coherent upgrade.
+### 1. Subprocess spawn → in-process concurrent workers
 
-## Phase A — Real news ingestion
+**Problem:** The pipeline spawned 8 separate `npx tsx workers/agent.ts` processes. Each process had an isolated memory space, which meant in memory mode (the default), agents couldn't see topics, sources, or articles seeded by the parent. A workaround HTTP coordinator (`lib/services/agentCoordinator.ts`) was added, which serialized every state mutation through REST endpoints, and used a tmp file for cross-process discovery.
 
-**Goal:** the homepage shows genuine breaking news from named publishers, not seed fixtures.
+**Fix:** Removed the entire subprocess spawn pattern. Topic processing now runs in-process as concurrent async tasks (up to 8 parallel workers). Workers share memory directly via the global pipeline tracker singleton. In memory mode, concurrency is capped at 3 to avoid crowding.
 
-### What ships
+Changes:
+- `workers/pipeline.ts` — rewritten: no `spawn()`, no `child_process`, no `startCoordinator()`. Uses `createConcurrencyLimiter()` + `Promise.all()` with a `claimNextTopic()` work-stealing pattern.
+- `workers/agent.ts` — **deleted** (196 lines). Agent lifecycle logic is now in `processTopic()` inside `workers/pipeline.ts`.
+- `lib/services/agentCoordinator.ts` — **deleted** (116 lines). The HTTP server with `/claim`, `/progress`, `/complete`, `/article`, `/config`, `/state`, `/health`, `/ai-failure` endpoints is no longer needed.
+- `lib/services/pipelineStateClient.ts` — **deleted** (46 lines). The `getLiveState()` function that fetched state across processes via tmp file + HTTP is gone. The admin status API route now directly calls `getPipelineRunState()`.
+- `app/api/admin/pipeline/status/route.ts` — updated import from `getLiveState` to `getPipelineRunState`.
 
-- **RSS sources file** — `lib/sources/curated.ts` with 25+ free RSS feeds across categories: BBC World, Al Jazeera, NPR, Hacker News (tech), TechCrunch, The Verge, Ars Technica, Reuters via Google News, Reddit `/r/worldnews`, `/r/technology`, `/r/science`, etc.
-- **Real RSS fetcher** — extend [lib/services/ingestion.ts](../lib/services/ingestion.ts) to actually call `rss-parser` against each source on every ingest. Parse, dedupe by URL hash, extract image from `<media:content>` / `<enclosure>` / OG-image fallback.
-- **HTML cleanup** — strip tags, decode entities, normalize whitespace before persisting.
-- **Per-source rate limiting** — exponential backoff so we don't hammer any one publisher.
-- **Default seed flips to real** — `npm run pipeline:local` ingests live RSS by default; the synthetic seed is only used when `OFFLINE=1`.
+**Net:** ~340 lines of complex infrastructure removed. No orphan processes, no tmp files, no serialization overhead, no 1.5s polling interval.
 
-### Files
+### 2. MCP server cleanup
 
-- New: `lib/sources/curated.ts`, `lib/utils/htmlClean.ts`
-- Edit: [lib/services/ingestion.ts](../lib/services/ingestion.ts), [lib/seed.ts](../lib/seed.ts), [scripts/db-seed.ts](../scripts/db-seed.ts)
+**Problem:** The MCP server duplicated the coordinator's agent coordination logic (`agent_claim_topic`, `agent_report_progress`, `agent_report_completion`) — but those tools were only ever called by subprocess agents that also talked to the HTTP coordinator. Two parallel coordination layers doing the same job.
 
-## Phase B — Advanced humanization & SEO-perfect content
+**Fix:** Removed the three agent coordination tools from the MCP server. The server now has 28 tools (down from 31).
 
-**Goal:** every published article reads like a human staff writer wrote it, ranks for its target keyword, and meets all Google Helpful Content signals.
+Also fixed:
+- Fastify StreamableHTTP setup — removed `sessionIdGenerator: undefined` argument that was breaking SDK 1.x session management.
+- `pipeline_agent_status` tool response uses `lifecycle` (not `subAgents`) and reads state directly from `getPipelineRunState()` instead of `getLiveState()`.
 
-### Approach
+### 3. Naming: sub-agent → lifecycle stage
 
-A **multi-pass synthesis pipeline** instead of a single `routeAiTask`:
+**Problem:** The six work stages (`fact_extractor`, `writer`, `social_composer`, `media_scout`, `quality_inspector`, `publisher`) were called "sub-agents" in the type system, which implied they were autonomous when they're actually sequential lifecycle stages in a single task.
 
-1. **Pass 1 — Extract** — pull raw fact claims from sources (already exists, sharpen).
-2. **Pass 2 — Outline** — produce a 4–6 section outline targeting the primary keyword.
-3. **Pass 3 — Draft** — write the article with explicit cadence rules (mix 8–15–25-word sentences, alternate paragraph lengths).
-4. **Pass 4 — Humanize** — vary openers, inject rhetorical questions, transitional phrases ("That said,", "Here's what changed,"), kill AI tropes.
-5. **Pass 5 — SEO optimize** — re-check keyword density, internal link injection, FAQ append, meta tag tighten.
-6. **Pass 6 — Quality gate** — confidence score; on regenerate, retry with a different prompt variant.
+**Fix:** Renamed `SubAgentType` → `LifecycleStage`, `SubAgentState` → `LifecycleState`, `SubAgentLabels` → `STAGE_LABELS`, `SubAgentShort` → `STAGE_SHORT`. Backward-compat aliases (`export type SubAgentType = LifecycleStage`) are provided for any external references. The type field on agents is now `lifecycle` instead of `subAgents`.
 
-### Anti-AI-trope filter
+Changes: `lib/services/pipelineTracker.ts`, `components/PipelineRunMonitor.tsx`, `components/PipelineStatusBar.tsx`.
 
-Hard-block list expanded: "in today's fast-paced world", "delve into", "navigate the", "in the realm of", "tapestry of", "stand as a testament", "moreover, furthermore" stacks, "it's important to note", semicolons-on-every-line, em-dash overuse.
+### 4. Quality evaluation: read-only assessor
 
-### Cadence engine
+**Problem:** The `evaluateQuality()` function mutated `article.status`, called `upsertArticle()`, and created quality reports and review tasks as a side effect. This means the MCP tool `quality_evaluate` was destructive — calling it on an article would change its status.
 
-A small TS utility (`lib/text/cadence.ts`) that:
-- splits the draft into sentences
-- measures average sentence length and stddev (burstiness)
-- if stddev < 5 words, rewrites the longest 3 sentences as 2 short ones each
-- enforces ≥ 1 question, ≥ 2 contractions, ≥ 1 short paragraph (1–2 sentences) per article
+**Fix:** Split into two functions:
+- `assessQuality(article)` — read-only. Returns the quality report, SEO score, and confidence routing decision. Safe for MCP tools.
+- `evaluateQuality(article)` — calls `assessQuality()` then persists results. Pipeline uses this.
 
-### Files
+Both MCP quality tools (`quality_evaluate`, `quality_evaluate_with_ai`) now use `assessQuality()`.
 
-- New: `lib/text/cadence.ts`, `lib/text/humanizer.ts`, `lib/prompts/v2.ts` (multi-pass templates)
-- Edit: [lib/services/generation.ts](../lib/services/generation.ts), [lib/services/quality.ts](../lib/services/quality.ts)
+### 5. Quality failure rate
 
-## Phase C — Site-wide SEO
+**Problem:** 15/19 articles were showing as quality failures. Three root causes:
 
-**Goal:** every page (not just `/news/[slug]`) is fully SEO-optimized — metadata, JSON-LD schema, OG images, internal links, hreflang.
+- `deepseek-v4-flash` doesn't exist as a DeepSeek model name — every AI call fell back to deterministic (thin) output.
+- `lowSourceSimilarity` threshold at 0.42 Jaccard was far too strict for synthesized content.
+- `passed` required zero failing structural checks — a single informational failure always tripped it.
+- Thresholds were tuned for a well-provisioned setup: `MIN_SOURCES_FOR_PUBLISH=3`, `AUTO_PUBLISH_CONFIDENCE_THRESHOLD=0.85`, `HIGH_RISK_CATEGORIES` included `health` and `finance`.
 
-### What ships
+**Fixes:**
+- Model name: `deepseek-v4-flash` → `deepseek-chat` in `.env` and `aiOrchestration.ts`.
+- Source similarity threshold: 0.42 → 0.80 (catches only near-verbatim copies).
+- Pass logic: now `structuralScore >= 60 && decision !== "regenerate"` instead of requiring zero check failures.
+- `.env` thresholds lowered to realistic defaults: `0.70` auto-publish, `0.40` review floor, `1` minimum source, `legal,conflict,elections` high-risk only.
+- Review tasks are only created for `human_review` decisions or high-risk topics, not for every article.
 
-- **Per-page `generateMetadata`** for: home, category, trending, tools, newsletter, all policy pages, ELI5.
-- **JSON-LD schema** added to every page type:
-  - Home: `WebSite` + `Organization` + `ItemList` for top stories
-  - Article: `NewsArticle` (already exists, expand with `image`, `wordCount`, `articleSection`, `keywords`)
-  - Category: `CollectionPage` + `BreadcrumbList`
-  - Explainer: `Article` + `FAQPage`
-  - About: `AboutPage`
-  - Newsletter: `WebPage`
-- **Dynamic OG images** — `/og/[slug]/route.tsx` using `next/og` to render branded social cards on demand.
-- **Sitemap with hreflang** — `app/sitemap.ts` lists every URL × locale and includes `<xhtml:link rel="alternate" hreflang="…"/>`.
-- **Internal link auto-injection** — generation pass 5 finds 2–3 published articles that match the new article's tags and inserts inline markdown links.
-- **Core Web Vitals** — `next/image` with `priority` only on lead, fonts via `next/font` (replaces the Google Fonts `@import`), no CLS.
+### 6. Admin: delete article
 
-### Files
+**Problem:** No way to remove generated articles from the admin dashboard.
 
-- New: `app/og/[slug]/route.tsx`, `lib/seo/schema.ts` (typed schema builders), `lib/seo/internalLinks.ts`
-- Edit: every public page's `generateMetadata`, [app/sitemap.ts](../app/sitemap.ts), [app/robots.ts](../app/robots.ts), [app/globals.css](../app/globals.css) (drop `@import`, switch to `next/font`)
+**Fix:** Added "Delete" button with `Trash2` icon to every article card, with a confirm dialog. Implementation:
+- `lib/store.ts` — `deleteArticleFromMemory()` (splices from memory + filters related records).
+- `lib/repositories/platformRepository.ts` — `deleteArticle()` (cascades deletes through quality_reports, review_tasks, media_assets, distribution_jobs in Postgres mode).
+- `app/(admin)/admin/actions.ts` — `deleteArticleAction()` server action.
+- `components/ArticleActions.tsx` — Delete button with confirmation.
 
-## Phase D — Multi-language with country detection
+---
 
-**Goal:** a reader in Mumbai sees the site in Hindi (or English with India focus), a reader in São Paulo sees Portuguese, a reader in Tokyo sees Japanese.
+## v0.1.2 — Production-Grade Upgrade (2026-05-11)
 
-### Approach
+### Phase 1 — Content Quality: Eliminate AI Artifacts
 
-- Adopt **next-intl** (research-recommended, App Router native, ~2KB).
-- Restructure routes to `app/(public)/[locale]/...`.
-- Locales: `en`, `hi`, `es`, `fr`, `de`, `ja`, `pt`, `ar` (8 to start).
-- **Country → locale negotiation** in middleware:
-  - `Accept-Language` header parses preferred locale
-  - Cookie override (`quickgist_locale`) if user picked manually
-  - Fallback: GeoIP via Vercel headers (`x-vercel-ip-country`) → country-to-locale map
-- **UI string catalog** — `messages/<locale>.json` for header/footer/buttons. Generated initially via deterministic translation table, replaceable with real Claude translations later.
-- **Article translation** — each article has a `translations` JSONB column (`{ locale: { title, dek, contentMarkdown, metaDescription } }`). Translation is opt-in per article; missing translations fall back to English with `<link rel="alternate" hreflang>` pointing to the canonical language.
-- **Locale switcher** in header (flag-style picker).
+- `lib/text/ai-artifacts.ts` — Centralized canonical list of 59 AI artifact phrases and 5 markdown cleanup regex patterns. Shared by generation, quality, and humanizer modules.
+- `lib/services/aiOrchestration.ts` — Added `sanitizeAiOutput()` called before every AI response return. Strips unclosed bold markers, code fences, empty links, stray headers, and normalizes whitespace.
+- `lib/text/humanizer.ts` — Added "Pass 0" markdown artifact cleanup before existing trope replacements. Converts bold callouts like `**Key Takeaway:**` to proper headings.
+- `lib/services/generation.ts` — Added 3 new article quality checks: `noMarkdownArtifacts`, `noCodeFences`, `noEmptyLinks`. Switched to shared artifact list from `ai-artifacts.ts`.
+- `lib/services/quality.ts` — Switched to shared artifact list, removed local duplicate.
 
-### Files
+### Phase 2 — i18n: Wire Translations into All Components
 
-- New: `i18n/routing.ts`, `i18n/request.ts`, `messages/<locale>.json` × 8, `components/public/LocaleSwitcher.tsx`, `lib/services/translation.ts`
-- Edit: [middleware.ts](../middleware.ts) (locale negotiation before admin gate), restructure `app/(public)/` into `app/(public)/[locale]/`, [db/schema.ts](../db/schema.ts) (`articles.translations` jsonb)
-- New migration: `db/migrations/002_translations.sql`
+- `app/layout.tsx` — Added `NextIntlClientProvider` wrapper with dynamic `lang={locale}`. Uses `getLocale()` and `getMessages()` from `next-intl/server`.
+- All public pages converted to `getTranslations()`: `page.tsx`, `news/[slug]/page.tsx`, `trending/page.tsx`, `about/page.tsx`, `tools/page.tsx`, `tools/summarize/page.tsx`, `privacy/page.tsx`, `terms/page.tsx`, `disclaimer/page.tsx`, `contact/page.tsx`, `newsletter/page.tsx`, `explain/[slug]/page.tsx`, `category/[slug]/page.tsx`.
+- All shared components converted: `Header.tsx`, `Footer.tsx`, `NewsletterBand.tsx`, `NewsletterSignup.tsx`, `StoryCard.tsx`.
+- `messages/en.json` expanded from ~22 keys to ~60+ keys. All 7 other locale files synced with authentic translations.
+- Active nav link detection via `x-pathname` header from middleware.
 
-## Phase E — Magazine-grade animations
+### Phase 3 — AI Image Generation
 
-**Goal:** the public site feels alive — scroll-driven reveals, page transitions, magnetic CTAs — without sacrificing performance.
+- `lib/services/imageGeneration.ts` — DALL-E 3 via OpenAI SDK with in-memory caching by stable hash of prompt + style. Supports hero/square/vertical/thumbnail formats. Falls back to placeholder when no key is set.
+- `lib/services/generation.ts` — Wired AI image generation into article creation pipeline after `imagePrompt` text generation. Falls back to stock photo search.
+- `lib/services/media.ts` — Updated to prefer AI-generated images over stock photos.
+- MCP tools: `generate_article_image`, `regenerate_image`.
 
-### Library choice
+### Phase 4 — Full 8-Agent Pipeline
 
-**Motion** (formerly Framer Motion) — research-recommended, 4.5M weekly downloads, native React/Next.js support, hardware-accelerated. Single dependency.
+- `workers/pipeline.ts` — Removed memory-mode 3-agent cap. Uses `PIPELINE_AGENT_CONCURRENCY` env var (default 8) across all storage modes.
+- Per-topic timeout increased to 15 minutes (configurable via `TOPIC_TIMEOUT_MS`).
+- On timeout: updates all lifecycle stages to "error" before calling `failNamedAgentTopic`.
+- Idle agent cleanup: agents with 0 completed + 0 failed are set to idle.
+- `lib/config.ts` — Added `pipelineAgentConcurrency` to Zod schema (1-16, default 8).
 
-### Animation system
+### Phase 5+6 — Advanced SEO + Auto-Publish at 60%
 
-- **Stagger fade-in on scroll** — magazine grid cards animate in as they enter viewport (intersection observer + motion variants).
-- **Hero parallax** — lead image moves at 0.7× scroll speed; headline at 0.95×.
-- **Page transitions** — soft cross-fade between routes (Next.js `template.tsx` pattern).
-- **Magnetic CTAs** — primary buttons subtly track cursor position within 40px radius.
-- **Reading progress bar** — already shipped, re-style with `motion.div`.
-- **Reveal-on-scroll** primitive — `<Reveal>` wrapper component used across pages.
-- **Smooth marquee** for trending ticker on homepage.
+- `lib/services/seoEngine.ts` — Added 4 new scoring components: Image SEO (8%, alt/lazy/modern formats), Schema validation (7%, JSON-LD checks), Canonical URL (3%), Social meta (5%, OG/Twitter). Weights redistributed: keyword 15%, title 12%, meta 8%, readability 16%, structure 12%, internal links 6%, word count 8%.
+- `lib/services/quality.ts` — SEO fast-track: `seo.overall >= 70` bypass for non-high-risk topics. Updated confidence formula comments.
+- `lib/config.ts` — `autoPublishConfidenceThreshold`: 0.85 → 0.60, `autoPublishQualityThreshold`: 86 → 60, `reviewConfidenceThreshold`: 0.60 → 0.40, `minSourcesForPublish`: 3 → 1.
+- `app/sitemap.ts` — Added `changefreq`, `priority`, hreflang alternates for all 8 locales.
+- `lib/seo/schema.ts`, `lib/seo.ts` — Added `inLanguage` parameter for locale-aware JSON-LD.
 
-### Files
+### Phase 7 — MCP v0.1.2: 43 Tools
 
-- New: `components/motion/Reveal.tsx`, `Magnetic.tsx`, `Marquee.tsx`, `PageTransition.tsx`, `Parallax.tsx`
-- Edit: homepage, article page, category page to wrap key blocks in motion primitives
-- New: `app/template.tsx` (page transition wrapper)
+- 9 new tools: `analyze_content_quality`, `generate_article_image`, `analyze_traffic_potential`, `optimize_for_featured_snippet`, `generate_newsletter_brief`, `analyze_content_gaps`, `generate_internal_links`, `audit_seo_health`, `trending_detect_incremental`.
+- All tools include `version: "0.1.2"` and `capabilityLevel: "basic" | "advanced" | "expert"` metadata.
+- Upgraded HYBRID tools with enhanced AI capabilities: entity extraction, E-E-A-T signals, NLP keyword clustering, factual consistency scoring.
 
-## Phase F — Autonomous orchestration
+### Phase 8 — Analytics + AdSense Monetization
 
-**Goal:** QuickGist runs the pipeline on its own. The MCP server can start/stop autonomous mode, and the operator console shows the next scheduled run.
+- `lib/services/analytics.ts` — In-house view tracking: `trackArticleView()`, `getArticleViews()`, `getTopArticlesByViews()`, `getDailyViewCount()`. No cookies, no PII. Stores in `globalThis` array.
+- `components/AdSlot.tsx` — Real Google AdSense `<ins>` rendering when `NEXT_PUBLIC_ADSENSE_CLIENT_ID` is set. Falls back to dashed-border placeholder.
+- `app/(admin)/admin/analytics/page.tsx` — Analytics dashboard with view counts, top articles, category breakdown.
+- `app/(public)/news/[slug]/page.tsx` — View tracking on article page load (non-blocking, silently ignores errors).
 
-### Components
+### Phase 9 — Dynamic Category Expansion
 
-- **Embedded scheduler** — `lib/scheduler/cron.ts` using `node-cron`. Runs in-process when MCP HTTP server is up, or as a separate `npm run scheduler` task.
-- **Schedule config** — `.env.local` can set `AUTONOMOUS_CRON="0 */2 * * *"` (every 2 hours). Default off.
-- **MCP tools added:**
-  - `autonomous_start` — kick off the scheduler with optional cron expression
-  - `autonomous_stop` — pause the scheduler
-  - `autonomous_status` — report next run time, last run summary, current cron
-  - `autonomous_run_once` — manually trigger one cycle (alias for `pipeline_run` with autonomous defaults)
-  - `translate_article` — translate a published article into a target locale
-  - `humanize_article` — re-run the humanizer pass on an existing article
-- **Per-locale pipeline mode** — autonomous run iterates the locales list and translates each newly published article.
-- **Daily digest** — at 06:00 UTC by default, run `compose_daily_digest` to assemble a top-stories newsletter.
+- `lib/services/trend.ts` — Added 6 new categories: banking, automotive, energy, legal, science, real-estate (15-25 keyword regex alternations each).
+- `detectTrendingTopicsIncremental()` — On-the-fly topic detection from new raw items without full pipeline run.
+- MCP tool: `trending_detect_incremental`.
 
-### Files
+### Phase 10 — Test Coverage + UI Polish
 
-- New: `lib/scheduler/cron.ts`, `lib/scheduler/state.ts`, `mcp/tools/autonomous.ts`
-- Edit: [mcp/server.ts](../mcp/server.ts) to register new tools, [package.json](../package.json) (`node-cron` dep, `npm run scheduler` script)
+- New test files: `tests/seoEngine.test.ts` (6 tests), `tests/header.test.tsx` (2 tests), `tests/footer.test.tsx` (2 tests).
+- Expanded: `tests/quality.test.ts` (auto-publish at 60%), `tests/pipeline.test.ts` (8 agent initialization), `tests/mcp.test.ts`.
+- Header: gradient top border, gradient underline on active/hover nav links, gradient brand text, 1.4rem brand name.
+- Footer: gradient top border, gradient background, gradient brand text, 2xl brand name.
+- Total: 31 tests passing, 1 skipped (Postgres integration).
 
-## Phase G — End-to-end MCP exercise
+### Phase 11 — Admin Monitoring Dashboard
 
-**Goal:** prove every MCP tool works against real data through a Claude Code session.
+- `app/(admin)/admin/monitoring/page.tsx` — Live pipeline status, agent health grid (8 agents with status/current topic/lifecycle), content health (articles pending, quality distribution), system stats (uptime, storage, provider, queue).
+- `app/api/health/route.ts` — Enhanced with pipeline status summary, recent error count, source freshness, uptime.
 
-### Tasks
-
-1. Start the MCP server in stdio + HTTP modes against a real Postgres-backed instance.
-2. Run a deterministic smoke harness that calls **every** registered tool, asserts JSON shape, and prints a pass/fail matrix.
-3. Document a "wire QuickGist into your Claude Code" recipe with `claude mcp add` and a sample `.mcp.json`.
-4. Capture a transcript of a real `pipeline_run` against live RSS, with the resulting article slug, SEO score, and confidence decision logged to `docs/MCP_SESSION_LOG.md`.
-
-### Files
-
-- New: `tests/mcp-full-smoke.mjs` (drives all 25+ tools), `docs/MCP_SESSION_LOG.md`
-- Edit: [docs/MCP_USAGE.md](MCP_USAGE.md) to point at the real session log
-
-## Implementation order
-
-The phases ship in dependency order:
-
-```
-A (real news) → B (humanization) → C (site SEO) → E (animations)
-                                    ↘
-                                     D (i18n) → F (autonomous, per-locale)
-                                                  ↘
-                                                   G (full MCP test)
-```
-
-A and B unblock everything else (without real content, animations and SEO have nothing to render). D depends on the route structure and on a working translation pipeline. F depends on D so autonomous runs can iterate locales.
-
-## Pragmatic scope notes
-
-- **Translation quality**: deterministic translation tables ship first; real Claude-driven translation lands behind a feature flag once we have provider keys configured.
-- **Animation performance**: every animation is `prefers-reduced-motion`-aware and disabled below 768px width unless the user opts in.
-- **Autonomous safety**: by default the autonomous scheduler runs in dry-run mode. The operator must explicitly POST `/api/admin/autonomous/start` to enable real publishing.
-- **Multi-language SEO**: hreflang + canonical pairs are mandatory; we never silently 404 a locale.
-
-## Sources used in this research
-
-- RSS feeds: [Top 100 World News RSS Feeds (Feedspot)](https://rss.feedspot.com/world_news_rss_feeds/), [Most Popular RSS Feeds (RSS.com)](https://rss.com/blog/popular-rss-feeds/)
-- i18n: [next-intl App Router guide](https://next-intl.dev/docs/getting-started/app-router), [Next.js Internationalization](https://nextjs.org/docs/app/guides/internationalization)
-- Animations: [Motion (Framer Motion)](https://motion.dev), [2026 Motion UI trends](https://lomatechnology.com/blog/motion-ui-trends-2026/2911)
-- Humanization: [How to Humanize AI Writing 2026](https://humbot.ai/hub/humanize-ai/how-to-humanize-ai-writing), perplexity/burstiness research
-- News SEO: [Next.js JSON-LD guide](https://nextjs.org/docs/app/guides/json-ld), [Structured Data SEO 2026](https://www.digitalapplied.com/blog/structured-data-seo-2026-rich-results-guide)
-- Claude prompting: [Anthropic prompt engineering best practices](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices)
-- MCP scheduling: [scheduler-mcp by PhialsBasement](https://github.com/PhialsBasement/scheduler-mcp), [MCP for Enterprise (CData, 2026)](https://medium.com/cdata-software/the-definitive-2026-guide-to-implementing-mcp-in-enterprise-environments-d74009a17b07)
+### Files created (v0.1.2)
+- `lib/text/ai-artifacts.ts` — Centralized AI artifact phrase list
+- `lib/services/imageGeneration.ts` — DALL-E 3 image generation
+- `lib/services/analytics.ts` — In-house view tracking
+- `app/(admin)/admin/analytics/page.tsx` — Analytics dashboard
+- `app/(admin)/admin/monitoring/page.tsx` — Monitoring dashboard
+- `tests/seoEngine.test.ts`, `tests/header.test.tsx`, `tests/footer.test.tsx`

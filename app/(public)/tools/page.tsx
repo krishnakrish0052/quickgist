@@ -34,16 +34,16 @@ const tools = [
 export default function ToolsPage() {
   return (
     <>
-      <section className="border-b border-line bg-gradient-to-br from-white via-paper to-accent/5">
+      <section className="border-b border-[var(--line)] bg-gradient-to-br from-white via-paper to-accent/5">
         <div className="container-wide px-4 py-14">
-          <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
+          <div className="inline-flex items-center gap-2 rounded-full border border-accent/20 bg-[var(--bg-elevated)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">
             <Zap size={12} />
             Free utilities
           </div>
-          <h1 className="mt-4 font-display text-4xl font-bold tracking-tight text-ink md:text-5xl">
+          <h1 className="mt-4 font-display text-4xl font-bold tracking-tight text-[var(--ink)] md:text-5xl">
             Useful, free reading tools.
           </h1>
-          <p className="mt-3 max-w-2xl text-ink/65">
+          <p className="mt-3 max-w-2xl text-[var(--ink-soft)]">
             Built from the same pipeline that powers our newsroom. Free forever for personal use, no signup required.
           </p>
         </div>
@@ -55,7 +55,7 @@ export default function ToolsPage() {
               key={title}
               href={available ? href : "#"}
               aria-disabled={!available}
-              className={`story-card group flex flex-col gap-4 rounded-2xl border border-line bg-white p-6 ${
+              className={`story-card group flex flex-col gap-4 rounded-2xl border border-[var(--line)] bg-[var(--bg-elevated)] p-6 ${
                 available ? "" : "pointer-events-none opacity-65"
               }`}
             >
@@ -63,15 +63,15 @@ export default function ToolsPage() {
                 <Icon size={20} />
               </span>
               <div>
-                <h2 className="font-display text-xl font-bold text-ink group-hover:text-accent">{title}</h2>
-                <p className="mt-2 text-sm leading-6 text-ink/65">{description}</p>
+                <h2 className="font-display text-xl font-bold text-[var(--ink)] group-hover:text-accent">{title}</h2>
+                <p className="mt-2 text-sm leading-6 text-[var(--ink-soft)]">{description}</p>
               </div>
               {available ? (
                 <span className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-accent">
                   Open tool <ArrowRight size={14} className="transition group-hover:translate-x-0.5" />
                 </span>
               ) : (
-                <span className="mt-auto rounded-full bg-paper px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-ink/55 w-fit">
+                <span className="mt-auto rounded-full bg-[var(--bg)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--ink-faint)] w-fit">
                   Coming soon
                 </span>
               )}

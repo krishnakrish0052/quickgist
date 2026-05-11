@@ -5,19 +5,27 @@
     "world": "World",
     "business": "Business",
     "technology": "Technology",
+    "science": "Science",
     "tools": "Tools",
-    "subscribe": "Subscribe"
+    "subscribe": "Subscribe",
+    "tagline": "Independent news · Verified sources",
+    "independentVerified": "Independent · Verified"
   },
   "home": {
+    "metaTitle": "QuickGist — Real news, explained clearly",
+    "metaDescription": "Source-grounded news summaries across world, business, tech, science and health. No noise, no opinion. Just the facts.",
     "topStories": "Top stories",
     "seeAll": "See all",
     "moreToRead": "More to read",
     "latestCoverage": "Latest coverage",
     "inPlainEnglish": "In plain English",
     "explained": "Stories, explained.",
+    "explainedDesc": "Background, definitions and context for the day's most complex stories.",
     "browseExplainers": "Browse explainers",
     "warmingUp": "Newsroom warming up.",
-    "warmingUpDesc": "No published stories yet. Run the pipeline to seed content."
+    "warmingUpDesc": "No published stories yet. Run the pipeline to seed content.",
+    "breaking": "Latest",
+    "read": "Read"
   },
   "article": {
     "readMore": "Read more",
@@ -25,25 +33,53 @@
     "minRead": "min read",
     "relatedStories": "Related stories",
     "sources": "Sources",
-    "eli5": "Explain simply"
+    "eli5": "Explain simply",
+    "keyPoints": "Key points",
+    "backToHome": "Back",
+    "wantExplained": "Want this story explained simply?",
+    "explainerPrompt": "Read the plain-English version — background, the why-it-matters, and the bottom line.",
+    "readExplainer": "Read the explainer",
+    "shareStory": "Share this story",
+    "topics": "Topics",
+    "dailyBrief": "Daily Brief",
+    "dailyBriefDesc": "Get the day's most important stories in 5 minutes.",
+    "subscribeFree": "Subscribe free"
   },
   "footer": {
-    "tagline": "Source-grounded news, simplified.",
+    "tagline": "Independent news verified from multiple sources, delivered with editorial clarity. No noise, no filler — just the stories that matter.",
+    "news": "News",
+    "toolsHeading": "Tools",
+    "company": "Company",
+    "latest": "Latest",
+    "trending": "Trending",
+    "world": "World",
+    "business": "Business",
+    "technology": "Technology",
+    "science": "Science",
+    "freeTools": "Free tools",
+    "articleSummarizer": "Article summarizer",
+    "newsletterLink": "Newsletter",
+    "rssFeed": "RSS feed",
     "about": "About",
-    "privacy": "Privacy",
-    "terms": "Terms",
+    "privacy": "Privacy policy",
+    "terms": "Terms of service",
     "contact": "Contact",
     "disclaimer": "Disclaimer",
-    "newsletter": "Newsletter",
-    "copyright": "© {year} QuickGist. All rights reserved."
+    "copyright": "© {year} QuickGist. All rights reserved.",
+    "verifiedSources": "Stories verified from multiple independent sources before publication."
   },
   "newsletter": {
-    "heading": "Stay informed, every day.",
-    "subheading": "Get the day's most important stories in your inbox — source-grounded, no opinion.",
+    "heading": "Stay informed. No noise.",
+    "subheading": "The top stories of the day, distilled into a 5-minute read. Delivered every morning.",
     "placeholder": "your@email.com",
     "cta": "Subscribe free",
     "success": "You're on the list. Check your inbox.",
-    "error": "Something went wrong. Try again."
+    "error": "Something went wrong. Try again.",
+    "unsubscribeNote": "No spam. Unsubscribe anytime. Read our"
+  },
+  "trending": {
+    "title": "Trending stories",
+    "description": "The most important stories right now, ranked by source velocity and editorial quality."
   },
   "tools": {
     "heading": "QuickGist Tools",

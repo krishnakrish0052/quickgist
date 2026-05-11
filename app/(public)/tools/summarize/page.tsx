@@ -10,7 +10,7 @@ export const metadata = {
 export default function SummarizePage() {
   return (
     <div className="container-wide px-4 py-12">
-      <Link href="/tools" className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-ink">
+      <Link href="/tools" className="inline-flex items-center gap-2 text-sm font-semibold text-accent hover:text-[var(--ink)]">
         <ArrowLeft size={14} />
         All tools
       </Link>
@@ -20,10 +20,10 @@ export default function SummarizePage() {
         </span>
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-accent">Free tool</p>
-          <h1 className="font-display text-3xl font-bold tracking-tight text-ink md:text-4xl">News summarizer</h1>
+          <h1 className="font-display text-3xl font-bold tracking-tight text-[var(--ink)] md:text-4xl">News summarizer</h1>
         </div>
       </div>
-      <p className="mt-4 max-w-2xl text-ink/65">
+      <p className="mt-4 max-w-2xl text-[var(--ink-soft)]">
         Paste any article — long-read, research paper, press release — and get a fast 3-bullet summary you can scan in
         under 30 seconds. No login, no rate limits for personal use.
       </p>

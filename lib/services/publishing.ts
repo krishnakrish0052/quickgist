@@ -19,7 +19,8 @@ export interface PublishResult {
 export async function publishArticle(
   articleId: string,
   actor: "system" | "admin" | "worker" = "system",
-  force = false
+  force = false,
+  agentId?: string
 ): Promise<PublishResult> {
   const article = await getArticleById(articleId);
   if (!article) return { article: undefined as never, published: false, reason: "Article not found" };
@@ -57,7 +58,7 @@ export async function publishArticle(
     action: "article.published",
     entityType: "article",
     entityId: article.id,
-    metadata: { slug: article.slug, qualityScore: article.qualityScore }
+    metadata: { slug: article.slug, qualityScore: article.qualityScore, ...(agentId ? { agentId } : {}) }
   });
 
   return { article, published: true };

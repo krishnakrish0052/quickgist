@@ -18,18 +18,18 @@ export default function NewsletterPage() {
   return (
     <div className="container-wide grid gap-10 px-4 py-14 md:grid-cols-[1.1fr_1fr] md:py-20">
       <div>
-        <div className="inline-flex items-center gap-2 rounded-full border border-signal/20 bg-white px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-signal">
+        <div className="inline-flex items-center gap-2 rounded-full border border-signal/20 bg-[var(--bg-elevated)] px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-signal">
           <Sparkles size={12} />
           The daily brief
         </div>
-        <h1 className="mt-4 font-display text-4xl font-bold leading-tight tracking-tight text-ink md:text-5xl">
+        <h1 className="mt-4 font-display text-4xl font-bold leading-tight tracking-tight text-[var(--ink)] md:text-5xl">
           5 minutes, every weekday. No filler.
         </h1>
-        <p className="mt-4 text-lg leading-8 text-ink/70">
+        <p className="mt-4 text-lg leading-8 text-[var(--ink-soft)]">
           The newsroom writes the brief from our source-grounded coverage. You get the headlines that actually matter,
           a quick explainer when context helps, and never more than one email a day.
         </p>
-        <ul className="mt-8 grid gap-2 text-sm leading-6 text-ink/80">
+        <ul className="mt-8 grid gap-2 text-sm leading-6 text-[var(--ink-soft)]">
           {[
             "Free forever for personal use.",
             "Read in under 5 minutes — guaranteed.",
@@ -43,12 +43,12 @@ export default function NewsletterPage() {
         </ul>
       </div>
       <div className="grid content-start gap-5">
-        <div className="rounded-2xl border border-line bg-white p-6 shadow-soft">
-          <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-ink/55">
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--bg-elevated)] p-6 shadow-lg">
+          <div className="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-[var(--ink-faint)]">
             <MailCheck size={14} className="text-signal" />
             What&apos;s in tomorrow&apos;s brief
           </div>
-          <ul className="grid gap-3 text-sm leading-6 text-ink/85">
+          <ul className="grid gap-3 text-sm leading-6 text-[var(--ink)]/85">
             {sample.map((item) => (
               <li key={item} className="border-l-2 border-signal/40 pl-3">
                 {item}

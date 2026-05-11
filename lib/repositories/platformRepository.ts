@@ -11,6 +11,7 @@ import {
   upsertArticle as upsertMemoryArticle,
   upsertFactClaims as upsertMemoryFactClaims,
   upsertRawItems as upsertMemoryRawItems,
+  deleteArticleFromMemory,
   upsertTopics as upsertMemoryTopics
 } from "@/lib/store";
 import type {
@@ -528,6 +529,27 @@ export async function seedRepository(): Promise<void> {
     await upsertArticle(article);
   }
 }
+
+export async function deleteArticle(articleId: string): Promise<boolean> {
+  if (!isPostgresEnabled()) return deleteArticleFromMemory(articleId);
+
+  await query("delete from quality_reports where article_id = $1", [articleId]);
+  await query("delete from review_tasks where article_id = $1", [articleId]);
+  await query("delete from media_assets where article_id = $1", [articleId]);
+  await query("delete from distribution_jobs where article_id = $1", [articleId]);
+  const result = await query("delete from articles where id = $1 returning id", [articleId]);
+
+  await addAuditLog({
+    actor: "admin",
+    action: "article.deleted",
+    entityType: "article",
+    entityId: articleId,
+    metadata: {},
+  });
+
+  return result.length > 0;
+}
+
 
 export async function resetMemoryRepository(): Promise<void> {
   resetPlatformState();

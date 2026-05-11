@@ -4,7 +4,7 @@ import type { Article } from "@/lib/types";
 
 export function ArticleCard({ article, priority = false }: { article: Article; priority?: boolean }) {
   return (
-    <article className="grid overflow-hidden rounded-md border border-line bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-panel">
+    <article className="grid overflow-hidden rounded-md border border-[var(--line)] bg-[var(--bg-elevated)] shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
       {article.heroImageUrl ? (
         <Link href={`/news/${article.slug}`} className="relative block aspect-[16/9] bg-line">
           <Image
@@ -24,12 +24,12 @@ export function ArticleCard({ article, priority = false }: { article: Article; p
           <span>{article.readingMinutes} min read</span>
         </div>
         <Link href={`/news/${article.slug}`}>
-          <h2 className="text-xl font-semibold leading-snug text-ink">{article.title}</h2>
+          <h2 className="text-xl font-semibold leading-snug text-[var(--ink)]">{article.title}</h2>
         </Link>
-        <p className="line-clamp-3 text-sm leading-6 text-ink/70">{article.dek}</p>
+        <p className="line-clamp-3 text-sm leading-6 text-[var(--ink-soft)]">{article.dek}</p>
         <div className="flex flex-wrap gap-2">
           {article.tags.slice(0, 3).map((tag) => (
-            <span key={tag} className="rounded-full bg-paper px-3 py-1 text-xs text-ink/70">
+            <span key={tag} className="rounded-full bg-[var(--bg)] px-3 py-1 text-xs text-[var(--ink-soft)]">
               {tag}
             </span>
           ))}

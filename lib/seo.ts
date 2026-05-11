@@ -5,7 +5,7 @@ export function absoluteUrl(path: string): string {
   return new URL(path, config.siteUrl).toString();
 }
 
-export function articleJsonLd(article: Article) {
+export function articleJsonLd(article: Article, inLanguage = "en") {
   return {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -27,7 +27,7 @@ export function articleJsonLd(article: Article) {
       : undefined,
     mainEntityOfPage: { "@type": "WebPage", "@id": absoluteUrl(`/news/${article.slug}`) },
     url: absoluteUrl(`/news/${article.slug}`),
-    inLanguage: "en"
+    inLanguage,
   };
 }
 

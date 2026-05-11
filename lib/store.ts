@@ -108,6 +108,17 @@ export function getPublishedArticles(): Article[] {
     .sort((a, b) => (b.publishedAt ?? b.updatedAt).localeCompare(a.publishedAt ?? a.updatedAt));
 }
 
+export function deleteArticleFromMemory(articleId: string): boolean {
+  const state = getPlatformState();
+  const index = state.articles.findIndex((a) => a.id === articleId);
+  if (index === -1) return false;
+  state.articles.splice(index, 1);
+  state.qualityReports = state.qualityReports.filter((r) => r.articleId !== articleId);
+  state.reviewTasks = state.reviewTasks.filter((t) => t.articleId !== articleId);
+  state.mediaAssets = state.mediaAssets.filter((m) => m.articleId !== articleId);
+  return true;
+}
+
 export function getArticleBySlug(slug: string): Article | undefined {
   return getPlatformState().articles.find((article) => article.slug === slug);
 }

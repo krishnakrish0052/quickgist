@@ -17,7 +17,10 @@ const configSchema = z.object({
   queueDriver: z.enum(["bullmq", "inline"]),
   r2PublicBaseUrl: z.string().optional(),
   brandName: z.string(),
-  isProduction: z.boolean()
+  isProduction: z.boolean(),
+  aiProvider: z.enum(["auto", "deepseek", "groq", "openai", "gemini"]),
+  aiModel: z.string().optional(),
+  pipelineAgentConcurrency: z.number().int().min(1).max(16)
 });
 
 function booleanFromEnv(value: string | undefined, fallback: boolean): boolean {
@@ -42,18 +45,21 @@ export const config = configSchema.parse({
   pipelineAutoPublish: booleanFromEnv(process.env.PIPELINE_AUTO_PUBLISH, false),
   storageDriver: inferredStorageDriver,
   databaseUrl: process.env.DATABASE_URL ?? "postgres://quickgist:quickgist@localhost:5432/quickgist",
-  autoPublishQualityThreshold: Number(process.env.AUTO_PUBLISH_QUALITY_THRESHOLD ?? 86),
-  autoPublishConfidenceThreshold: Number(process.env.AUTO_PUBLISH_CONFIDENCE_THRESHOLD ?? 0.85),
-  reviewConfidenceThreshold: Number(process.env.REVIEW_CONFIDENCE_THRESHOLD ?? 0.6),
+  autoPublishQualityThreshold: Number(process.env.AUTO_PUBLISH_QUALITY_THRESHOLD ?? 60),
+  autoPublishConfidenceThreshold: Number(process.env.AUTO_PUBLISH_CONFIDENCE_THRESHOLD ?? 0.60),
+  reviewConfidenceThreshold: Number(process.env.REVIEW_CONFIDENCE_THRESHOLD ?? 0.40),
   minSourcesForPublish: Number(process.env.MIN_SOURCES_FOR_PUBLISH ?? 1),
   highRiskCategories: (process.env.HIGH_RISK_CATEGORIES ?? "legal,conflict,elections")
     .split(",")
     .map((value) => value.trim())
     .filter(Boolean),
-  modelDailyTokenBudget: Number(process.env.MODEL_DAILY_TOKEN_BUDGET ?? 250000),
+  modelDailyTokenBudget: Number(process.env.MODEL_DAILY_TOKEN_BUDGET ?? 2000000),
   redisUrl: process.env.REDIS_URL || undefined,
   queueDriver: inferredQueueDriver,
   r2PublicBaseUrl: process.env.R2_PUBLIC_BASE_URL || undefined,
   brandName: process.env.NEXT_PUBLIC_BRAND_NAME ?? "QuickGist",
-  isProduction
+  isProduction,
+  aiProvider: (process.env.AI_PROVIDER as "auto" | "deepseek" | "groq" | "openai" | "gemini" | undefined) ?? "auto",
+  aiModel: process.env.AI_MODEL || undefined,
+  pipelineAgentConcurrency: Number(process.env.PIPELINE_AGENT_CONCURRENCY ?? 8)
 });

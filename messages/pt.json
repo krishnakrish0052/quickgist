@@ -5,8 +5,11 @@
     "world": "Mundo",
     "business": "Negócios",
     "technology": "Tecnologia",
+    "science": "Ciência",
     "tools": "Ferramentas",
-    "subscribe": "Assinar"
+    "subscribe": "Assinar",
+    "tagline": "Notícias independentes · Fontes verificadas",
+    "independentVerified": "Independente · Verificado"
   },
   "home": {
     "topStories": "Principais notícias",
@@ -17,7 +20,7 @@
     "explained": "Histórias explicadas.",
     "browseExplainers": "Ver explicações",
     "warmingUp": "A redação está a preparar-se.",
-    "warmingUpDesc": "Ainda não há artigos publicados."
+    "warmingUpDesc": "Ainda não há artigos publicados. Execute o pipeline para gerar conteúdo."
   },
   "article": {
     "readMore": "Leia mais",
@@ -25,30 +28,51 @@
     "minRead": "min de leitura",
     "relatedStories": "Histórias relacionadas",
     "sources": "Fontes",
-    "eli5": "Explicar de forma simples"
+    "eli5": "Explicar de forma simples",
+    "keyPoints": "Pontos principais",
+    "backToHome": "Voltar",
+    "wantExplained": "Quer esta história explicada de forma simples?",
+    "readExplainer": "Ler a explicação",
+    "shareStory": "Partilhar esta história",
+    "topics": "Tópicos",
+    "dailyBrief": "Resumo diário",
+    "subscribeFree": "Assinar gratuitamente"
   },
   "footer": {
-    "tagline": "Notícias com fontes, simplificadas.",
+    "tagline": "Notícias independentes verificadas de múltiplas fontes, apresentadas com clareza editorial. Sem ruído, sem enchimento — apenas as histórias que importam.",
+    "news": "Notícias",
+    "toolsHeading": "Ferramentas",
+    "company": "Empresa",
+    "latest": "Últimas notícias",
+    "trending": "Em alta",
+    "world": "Mundo",
+    "business": "Negócios",
+    "technology": "Tecnologia",
+    "science": "Ciência",
+    "freeTools": "Ferramentas gratuitas",
+    "articleSummarizer": "Resumidor de artigos",
+    "newsletterLink": "Boletim informativo",
+    "rssFeed": "Feed RSS",
     "about": "Sobre nós",
-    "privacy": "Privacidade",
-    "terms": "Termos",
+    "privacy": "Política de privacidade",
+    "terms": "Termos de serviço",
     "contact": "Contato",
     "disclaimer": "Aviso legal",
-    "newsletter": "Boletim informativo",
-    "copyright": "© {year} QuickGist. Todos os direitos reservados."
+    "copyright": "© {year} QuickGist. Todos os direitos reservados.",
+    "verifiedSources": "Histórias verificadas de múltiplas fontes independentes antes da publicação."
   },
   "newsletter": {
     "heading": "Fique informado, todos os dias.",
-    "subheading": "As notícias mais importantes do dia na sua caixa de entrada.",
+    "subheading": "Receba as notícias mais importantes do dia na sua caixa de entrada — baseadas em fontes, sem opinião.",
     "placeholder": "seu@email.com",
     "cta": "Assinar gratuitamente",
-    "success": "Você está na lista.",
-    "error": "Algo deu errado. Tente novamente."
+    "success": "Está na lista. Verifique a sua caixa de entrada.",
+    "error": "Algo correu mal. Tente novamente."
   },
   "tools": {
     "heading": "Ferramentas QuickGist",
     "subheading": "Ferramentas de IA gratuitas para ler, pesquisar e verificar.",
     "summarize": "Resumir um artigo",
-    "summarizeDesc": "Cole qualquer URL ou texto — obtenha um resumo limpo em segundos."
+    "summarizeDesc": "Cole qualquer URL ou texto — obtenha um resumo limpo com fontes em segundos."
   }
 }

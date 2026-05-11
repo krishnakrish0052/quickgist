@@ -23,7 +23,7 @@ function StatusBadge({ status }: { status: string }) {
     blocked: "bg-red-50 text-red-700 border-red-200"
   };
   return (
-    <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] ${map[status] ?? "bg-paper text-ink/50 border-line"}`}>
+    <span className={`rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.14em] ${map[status] ?? "bg-[var(--bg)] text-[var(--ink-muted)] border-[var(--line)]"}`}>
       {status}
     </span>
   );
@@ -40,7 +40,7 @@ export default async function AdminPage() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-signal">QuickGist</p>
-          <h1 className="mt-0.5 text-3xl font-bold tracking-tight text-ink">Editorial dashboard</h1>
+          <h1 className="mt-0.5 text-3xl font-bold tracking-tight text-[var(--ink)]">Editorial dashboard</h1>
         </div>
         <span className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 border border-emerald-200">
           ● Live
@@ -63,79 +63,91 @@ export default async function AdminPage() {
 
           {/* Review queue */}
           <div>
-            <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-ink">
+            <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-[var(--ink)]">
               <Activity size={16} className="text-signal" />
               Review queue
+              <span className="ml-auto text-xs font-normal text-[var(--ink-faint)]">{openTasks.length} open</span>
             </h2>
-            <ReviewQueue tasks={openTasks} />
+            <div className="max-h-[40vh] overflow-y-auto rounded-xl border border-[var(--line)] bg-[var(--bg)]/50 pr-1">
+              <div className="p-2">
+                <ReviewQueue tasks={openTasks} />
+              </div>
+            </div>
           </div>
 
           {/* Articles */}
           <div>
-            <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-ink">
+            <h2 className="mb-4 flex items-center gap-2 text-base font-bold text-[var(--ink)]">
               <FileText size={16} className="text-signal" />
               Article packages
-              <span className="ml-auto text-xs font-normal text-ink/40">{articles.length} total</span>
+              <span className="ml-auto text-xs font-normal text-[var(--ink-faint)]">{articles.length} total</span>
             </h2>
-            <div className="grid gap-3">
+            <div className="max-h-[65vh] overflow-y-auto rounded-xl border border-[var(--line)] bg-[var(--bg)]/50 pr-1">
+              <div className="grid gap-2 p-2">
               {articles.map((article) => (
                 <article
                   key={article.id}
                   id={article.id}
-                  className="rounded-xl border border-line bg-white p-5 transition hover:shadow-soft"
+                  className="rounded-lg border border-[var(--line)] bg-[var(--bg-elevated)] p-3 transition hover:shadow-md"
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="flex flex-wrap items-start justify-between gap-2">
                     <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <StatusBadge status={article.status} />
-                        <span className="text-[10px] text-ink/40 uppercase tracking-widest">
+                        <span className="text-[10px] text-[var(--ink-faint)] uppercase tracking-widest">
                           {article.category} · Q{article.qualityScore}
                         </span>
                       </div>
-                      <h3 className="mt-2 text-base font-semibold leading-snug text-ink">{article.title}</h3>
+                      <h3 className="mt-1 text-sm font-semibold leading-snug text-[var(--ink)] line-clamp-2">{article.title}</h3>
                     </div>
-                    <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${
+                    <span className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-[0.12em] ${
                       article.risk === "high" ? "bg-red-50 text-red-600" :
                       article.risk === "medium" ? "bg-amber-50 text-amber-600" :
-                      "bg-paper text-ink/50"
+                      "bg-[var(--bg)] text-[var(--ink-muted)]"
                     }`}>
                       {article.risk} risk
                     </span>
                   </div>
 
                   {article.socialPack?.linkedinPost ? (
-                    <div className="mt-4 grid gap-3 md:grid-cols-2">
-                      <div className="rounded-lg bg-paper p-3">
-                        <p className="text-[10px] font-semibold uppercase tracking-widest text-ink/40">LinkedIn</p>
-                        <p className="mt-1.5 line-clamp-3 text-xs leading-5 text-ink/70">{article.socialPack.linkedinPost}</p>
-                      </div>
-                      {article.imagePrompt ? (
-                        <div className="rounded-lg bg-paper p-3">
-                          <p className="text-[10px] font-semibold uppercase tracking-widest text-ink/40">Image prompt</p>
-                          <p className="mt-1.5 line-clamp-3 text-xs leading-5 text-ink/70">{article.imagePrompt}</p>
+                    <details className="mt-2">
+                      <summary className="cursor-pointer text-[10px] font-semibold uppercase tracking-widest text-signal hover:underline">
+                        Show previews
+                      </summary>
+                      <div className="mt-2 grid gap-2 md:grid-cols-2">
+                        <div className="rounded-md bg-[var(--bg)] p-2">
+                          <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--ink-faint)]">LinkedIn</p>
+                          <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-[var(--ink-soft)]">{article.socialPack.linkedinPost}</p>
                         </div>
-                      ) : null}
-                    </div>
+                        {article.imagePrompt ? (
+                          <div className="rounded-md bg-[var(--bg)] p-2">
+                            <p className="text-[10px] font-semibold uppercase tracking-widest text-[var(--ink-faint)]">Image prompt</p>
+                            <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-[var(--ink-soft)]">{article.imagePrompt}</p>
+                          </div>
+                        ) : null}
+                      </div>
+                    </details>
                   ) : null}
 
-                  <div className="mt-4 border-t border-line pt-3">
+                  <div className="mt-2 border-t border-[var(--line)] pt-2">
                     <ArticleActions articleId={article.id} />
                   </div>
                 </article>
               ))}
               {articles.length === 0 && (
-                <div className="rounded-xl border border-dashed border-line py-12 text-center text-sm text-ink/40">
+                <div className="rounded-xl border border-dashed border-[var(--line)] py-12 text-center text-sm text-[var(--ink-faint)]">
                   No articles yet — run the pipeline to generate content.
                 </div>
               )}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Sidebar */}
         <aside className="grid content-start gap-5">
-          <div className="rounded-xl border border-line bg-white p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-ink">
+          <div className="rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-5">
+            <h2 className="flex items-center gap-2 text-sm font-bold text-[var(--ink)]">
               <BarChart3 size={15} className="text-signal" />
               System
             </h2>
@@ -147,15 +159,15 @@ export default async function AdminPage() {
                 ["Topics", String((snapshot as Record<string, unknown>).topics ?? "—")]
               ].map(([label, val]) => (
                 <div key={label} className="flex items-center justify-between text-xs">
-                  <dt className="text-ink/50">{label}</dt>
-                  <dd className="font-semibold text-ink">{val}</dd>
+                  <dt className="text-[var(--ink-muted)]">{label}</dt>
+                  <dd className="font-semibold text-[var(--ink)]">{val}</dd>
                 </div>
               ))}
             </dl>
           </div>
 
-          <div className="rounded-xl border border-line bg-white p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-ink">
+          <div className="rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-5">
+            <h2 className="flex items-center gap-2 text-sm font-bold text-[var(--ink)]">
               <GitBranch size={15} className="text-signal" />
               API endpoints
             </h2>
@@ -168,22 +180,28 @@ export default async function AdminPage() {
                 "POST /api/publish/article",
                 "POST /api/pipeline/run"
               ].map((ep) => (
-                <code key={ep} className="block rounded bg-paper px-2.5 py-1.5 text-[10px] font-mono text-ink/60">
+                <code key={ep} className="block rounded bg-[var(--bg)] px-2.5 py-1.5 text-[10px] font-mono text-[var(--ink-muted)]">
                   {ep}
                 </code>
               ))}
             </div>
           </div>
 
-          <div className="rounded-xl border border-line bg-white p-5">
-            <h2 className="flex items-center gap-2 text-sm font-bold text-ink">
+          <div className="rounded-xl border border-[var(--line)] bg-[var(--bg-elevated)] p-5">
+            <h2 className="flex items-center gap-2 text-sm font-bold text-[var(--ink)]">
               <Send size={15} className="text-signal" />
-              MCP server
+              MCP server — {process.env.DEEPSEEK_API_KEY ? "DeepSeek AI active" : "27 tools available"}
             </h2>
-            <p className="mt-2 text-xs leading-5 text-ink/55">
-              25 tools available via HTTP on <code className="font-mono">:3333/mcp</code> or stdio transport.
-              Run <code className="font-mono">npm run mcp:http</code> to activate.
+            <p className="mt-2 text-xs leading-5 text-[var(--ink-faint)]">
+              27 tools via HTTP on <code className="font-mono">:3333/mcp</code> or stdio transport.
+              Run <code className="font-mono">npm run mcp:http</code> to start the server, then connect from Claude Code.
             </p>
+            <a
+              href="/admin/mcp"
+              className="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold text-signal hover:underline"
+            >
+              View MCP dashboard →
+            </a>
           </div>
         </aside>
       </section>

@@ -1,3 +1,4 @@
+import type { AiResponse, AiTask } from "@/lib/services/aiOrchestration";
 import type { Article, FactClaim, SocialPack, Topic } from "@/lib/types";
 import {
   buildArticlePrompt,
@@ -15,6 +16,23 @@ import { getFactClaims, getPlatformSnapshot, upsertArticle } from "@/lib/reposit
 import { analyzeCadence, improveCadence } from "@/lib/text/cadence";
 import { humanize, humanizeScore } from "@/lib/text/humanizer";
 import { searchRelevantImage, titleToImageQuery } from "@/lib/services/imageSearch";
+import { AI_ARTIFACT_PHRASES, MARKDOWN_ARTIFACT_PATTERNS } from "@/lib/text/ai-artifacts";
+import { generateNewsImage } from "@/lib/services/imageGeneration";
+
+function isReal(ai: AiResponse): boolean {
+  return ai.provider !== "deterministic";
+}
+
+function tryParseJson<T>(raw: string): T | null {
+  try {
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
+    if (start === -1 || end === -1) return null;
+    return JSON.parse(raw.slice(start, end + 1)) as T;
+  } catch {
+    return null;
+  }
+}
 
 const CATEGORY_IMAGES: Record<string, string[]> = {
   technology: [
@@ -24,6 +42,15 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
     "photo-1451187580459-43490279c0fa", // earth network
     "photo-1488590528505-98d2b5aba04b", // laptop screen
     "photo-1504384308090-c894fdcc538d", // server room
+    "photo-1517077304055-6e89abbf09b0", // data center
+    "photo-1535223289822-42f1e9919769", // digital abstract
+    "photo-1558494949-ef010cbdcc31", // fiber optics
+    "photo-1563986768609-322da13575f2", // microchip
+    "photo-1580894894513-541e068a3e2b", // coding screen
+    "photo-1597733336794-12d05021d510", // vr headset
+    "photo-1617791160536-598cf32026fb", // robotics
+    "photo-1620712943543-bcc4688e7485", // neural network
+    "photo-1677442136019-21780ecad995", // ai concept
   ],
   finance: [
     "photo-1611974789855-9c2a0a7236a3", // stock charts
@@ -32,6 +59,15 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
     "photo-1559526324-4b87b5e36e44", // currency
     "photo-1554224155-8d04cb21cd6c", // business meeting
     "photo-1460925895917-afdab827c52f", // wall street
+    "photo-1501167786227-4cba60f6d58f", // banking
+    "photo-1520607162513-77705c0f0d4a", // analytics
+    "photo-1534951009808-766178b8742a", // credit cards
+    "photo-1551288049-bebda4e38f71", // investment
+    "photo-1560472354-b33ff0c44a43", // real estate
+    "photo-1565514020179-026b92b84bb6", // payment terminal
+    "photo-1574607383476-f517f260d30b", // fintech
+    "photo-1590283603385-17ffb3a7bd44", // stock exchange
+    "photo-1633158829585-23ba1c0612fd", // digital banking
   ],
   politics: [
     "photo-1529107386315-e1a2ed48a620", // parliament
@@ -40,6 +76,15 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
     "photo-1464938050520-ef2270bb8ce8", // capitol
     "photo-1486591978090-58e619d37fe7", // globe
     "photo-1495020689067-958852a7765e", // newspaper
+    "photo-1504711434969-e33886168f5c", // city skyline
+    "photo-1517048676732-d65bc937f68c", // government building
+    "photo-1532375810709-75b1da00537c", // diplomacy
+    "photo-1541963463532-d68292c34b19", // streets
+    "photo-1555848962-4f3e5b6c7c7c", // press conference
+    "photo-1572949649942-d8e524b86b5b", // united nations
+    "photo-1585829365295-ab7cd400c167", // international
+    "photo-1590559899731-a382839e5549", // supreme court
+    "photo-1607457561901-e78441cdb18b", // voting
   ],
   health: [
     "photo-1576091160399-112ba8d25d1d", // hospital
@@ -48,6 +93,15 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
     "photo-1584515933487-779824d29309", // medicine
     "photo-1631815589968-fdb09a223b1e", // microscope
     "photo-1559757175-0eb30cd8c063", // doctor
+    "photo-1504438190342-5951e134ffee", // pharmacy
+    "photo-1506126613408-eca07ce68773", // wellness
+    "photo-1511174511562-5f7f1d58d932", // stethoscope
+    "photo-1516574187841-cb9cc2ca948b", // vaccine
+    "photo-1571019613454-1cb2f99b2d8b", // fitness
+    "photo-1579684385127-1ef15d508118", // surgery
+    "photo-1584982751601-97dcc096659c", // ambulance
+    "photo-1607619056574-7b8d17707c3c", // pills
+    "photo-1631217868264-e5b90bb7e133", // healthcare worker
   ],
   education: [
     "photo-1523050854058-8df90110c9f1", // graduation
@@ -56,6 +110,15 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
     "photo-1546410531-bb4caa6b424d", // student
     "photo-1497633762265-9d179a990aa6", // library
     "photo-1434030216411-0b793f4b4173", // writing
+    "photo-1481627834876-b7833e8f5570", // reading
+    "photo-1492538368677-f6e0afe31dcc", // college
+    "photo-1509062522246-3755977927d7", // school supplies
+    "photo-1523580846011-d3a5bc25702b", // lecture hall
+    "photo-1543269865-cbf427effbad", // online learning
+    "photo-1561089489-c13e2a06ce49", // digital education
+    "photo-1577896851231-70ef18881754", // campus
+    "photo-1588072432836-e10032774350", // stem
+    "photo-1606327054536-e37e655d4f88", // teacher
   ],
   science: [
     "photo-1532094349884-543559612296", // molecules
@@ -64,6 +127,15 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
     "photo-1635070041078-e363dbe005cb", // chemistry
     "photo-1581091226825-a6a2a5aee158", // research
     "photo-1564325724739-bae0bd08762c", // astronomy
+    "photo-1453733190371-0a9bedd82893", // dna
+    "photo-1507668077129-56e32842fceb", // space
+    "photo-1531747118689-cd2ac34e6d1d", // particle physics
+    "photo-1579154204601-01588f351e67", // petri dish
+    "photo-1582560475135-724206e83dba", // scientist
+    "photo-1582719471384-894fbb4e7bd1", // climate
+    "photo-1589652717521-10c0d092dea9", // engineering
+    "photo-1614935151651-0bea65082bab", // solar panels
+    "photo-1628595350273-2ca913b483ae", // quantum computing
   ],
   world: [
     "photo-1495020689067-958852a7765e", // newspaper
@@ -72,6 +144,15 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
     "photo-1541963463532-d68292c34b19", // streets
     "photo-1486591978090-58e619d37fe7", // world map
     "photo-1514439827219-9137a0b99245", // architecture
+    "photo-1529156069898-49953e39b3ac", // bridge
+    "photo-1531219572328-a0171f444d20", // airport
+    "photo-1543465073833-9c24c45b47f2", // port
+    "photo-1558618666-fcd25c85f82e", // mountains
+    "photo-1569098644584-75a5a84c7c2b", // ocean shipping
+    "photo-1570351404933-70db7f1f587b", // satellites
+    "photo-1577412647305-991415cd74ea", // united nations
+    "photo-1589519160732-57fc498e052f", // embassy
+    "photo-1598193957017-5703d49e69a6", // migration
   ],
 };
 
@@ -79,7 +160,7 @@ const OLD_PLACEHOLDER = "photo-1495020689067-958852a7765e";
 
 function pickHeroImage(topic: Topic): string {
   const pool = CATEGORY_IMAGES[topic.category] ?? CATEGORY_IMAGES.world;
-  const hash = Math.abs(parseInt(stableHash(topic.id).replace(/\D/g, "").slice(0, 8) || "0", 10));
+  const hash = Math.abs(parseInt(stableHash(topic.id + topic.title).replace(/\D/g, "").slice(0, 8) || "0", 10));
   const photoId = pool[hash % pool.length];
   return `https://images.unsplash.com/${photoId}?auto=format&fit=crop&w=1400&q=80`;
 }
@@ -89,7 +170,7 @@ export function articleHeroImage(article: { heroImageUrl?: string | null; catego
   const stored = article.heroImageUrl ?? "";
   if (!stored || stored.includes(OLD_PLACEHOLDER)) {
     const pool = CATEGORY_IMAGES[article.category.toLowerCase()] ?? CATEGORY_IMAGES.world;
-    const hash = Math.abs(parseInt(article.slug.replace(/\D/g, "").slice(0, 8) || "1", 10) + article.slug.length * 31);
+    const hash = Math.abs(parseInt(stableHash(article.slug + article.category).replace(/\D/g, "").slice(0, 8) || "1", 10) + (article.slug + article.category).length * 31);
     return `https://images.unsplash.com/${pool[hash % pool.length]}?auto=format&fit=crop&w=1400&q=80`;
   }
   return stored;
@@ -145,15 +226,13 @@ function createArticleMarkdown(topic: Topic, claims: FactClaim[]): string {
   const keyword3 = topic.keywords[2] ?? topic.keywords[0] ?? "";
 
   // Build fact paragraphs — each claim becomes its own sentence in running prose
-  const factParagraphs = claims
-    .slice(0, 6)
-    .map((c) => c.claim.trim())
-    .join(" ");
+  const factParagraphs = claims.length > 0
+    ? claims.slice(0, 6).map((c) => c.claim.trim()).join(" ")
+    : topic.summary;
 
-  const verifiedList = claims
-    .slice(0, 5)
-    .map((c) => `- ${c.claim.trim()}`)
-    .join("\n");
+  const verifiedList = claims.length > 0
+    ? claims.slice(0, 5).map((c) => `- ${c.claim.trim()}`).join("\n")
+    : `- ${topic.summary}\n- Multiple independent sources are reporting on ${topic.title}\n- The story has been identified through cross-source signal analysis${topic.keywords.length > 0 ? `\n- Key signals: ${topic.keywords.slice(0, 4).join(", ")}` : ""}`;
 
   // Derive a short context phrase from the category
   const categoryContext: Record<string, string> = {
@@ -268,38 +347,84 @@ function buildMetaDescription(topic: Topic): string {
   return combined.length < base.length ? base.slice(0, 155).trimEnd() + "." : combined;
 }
 
+/** AI output must be substantial, structured, and free of AI clichés and markdown artifacts. */
+function articleQualityOk(output: string): boolean {
+  const words = output.split(/\s+/).filter(Boolean).length;
+  const h2Count = (output.match(/^##\s+/gm) ?? []).length;
+  const paragraphs = output.split(/\n\n+/).filter((p) => p.trim().length > 0).length;
+  const hasSlop = AI_ARTIFACT_PHRASES.some((phrase) => output.toLowerCase().includes(phrase.toLowerCase()));
+  const noMarkdownArtifacts = !MARKDOWN_ARTIFACT_PATTERNS.some((pattern) => pattern.test(output));
+  const noCodeFences = !/```[\s\S]*?```/.test(output);
+  const noEmptyLinks = !/\[([^\]]*)\]\(\s*\)/.test(output);
+  return words >= 400 && h2Count >= 2 && paragraphs >= 3 && !hasSlop && noMarkdownArtifacts && noCodeFences && noEmptyLinks;
+}
+
 export async function generateArticlePackage(topic: Topic): Promise<GeneratedContentResult> {
   const claims = await factsForTopic(topic);
   const now = nowIso();
   const slug = slugify(topic.title);
-  const articleAi = await routeAiTask({
-    task: "article",
-    prompt: buildArticlePrompt(topic, claims),
-    traceId: topic.id
-  });
-  const explainerAi = await routeAiTask({
-    task: "explainer",
-    prompt: buildExplainerPrompt(topic, claims),
-    traceId: topic.id
-  });
-  const socialAi = await routeAiTask({
-    task: "social",
-    prompt: buildSocialPrompt(topic, topic.summary),
-    traceId: topic.id
-  });
-  const scriptAi = await routeAiTask({
-    task: "script",
-    prompt: `Create a 45 second neutral video script for ${topic.title}.`,
-    traceId: topic.id
-  });
-  const imageAi = await routeAiTask({
-    task: "image_prompt",
-    prompt: `Create an editorial image prompt for ${topic.title}.`,
-    traceId: topic.id
-  });
+  const results = await Promise.allSettled([
+    routeAiTask({ task: "article", prompt: buildArticlePrompt(topic, claims), maxTokens: 2000, traceId: topic.id }),
+    routeAiTask({ task: "explainer", prompt: buildExplainerPrompt(topic, claims), maxTokens: 800, traceId: topic.id }),
+    routeAiTask({ task: "social", prompt: buildSocialPrompt(topic, topic.summary), maxTokens: 600, traceId: topic.id }),
+    routeAiTask({ task: "script", prompt: `Create a 45 second neutral video script for ${topic.title}.`, maxTokens: 600, traceId: topic.id }),
+    routeAiTask({ task: "image_prompt", prompt: `Create an editorial image prompt for ${topic.title}.`, maxTokens: 400, traceId: topic.id }),
+  ]);
 
-  const contentMarkdown = createArticleMarkdown(topic, claims);
+  function orFallback(r: PromiseSettledResult<AiResponse>, task: AiTask): AiResponse {
+    if (r.status === "fulfilled") return r.value;
+    // Return a signal that the caller can use to trigger deterministic generation
+    return {
+      id: `ai-fallback-${task}-${nowIso()}`,
+      task,
+      provider: "deterministic" as const,
+      model: "quickgist-local-synthesizer",
+      output: `__DETERMINISTIC_FALLBACK__:${task}`,
+      tokenEstimate: 0,
+      cached: false,
+      createdAt: nowIso(),
+    };
+  }
+  const articleAi = orFallback(results[0], "article");
+  const explainerAi = orFallback(results[1], "explainer");
+  const socialAi = orFallback(results[2], "social");
+  const scriptAi = orFallback(results[3], "script");
+  const imageAi = orFallback(results[4], "image_prompt");
+
+  let articleOutput = articleAi.output;
+  if (isReal(articleAi) && !articleQualityOk(articleAi.output)) {
+    const retryPrompt = buildArticlePrompt(topic, claims) + "\n\nCRITICAL: Your previous output was rejected. Write at least 450 words, use exactly 3 H2 headings, 4+ paragraphs, and avoid cliché phrases. Short or vague output will be rejected again.";
+    const retryAi = await routeAiTask({
+      task: "article",
+      prompt: retryPrompt,
+      traceId: `${topic.id}-retry`
+    });
+    if (isReal(retryAi) && articleQualityOk(retryAi.output)) {
+      articleOutput = retryAi.output;
+    }
+  }
+
+  // Use deterministic template for fallback output; always quality-check real AI output
+  const useDeterministic = articleOutput.startsWith("__DETERMINISTIC_FALLBACK__");
+  const rawMarkdown = useDeterministic || !articleQualityOk(articleOutput)
+    ? createArticleMarkdown(topic, claims)
+    : articleOutput;
+  // Always run humanizer + cadence improvement on final content
+  const { markdown: contentMarkdown } = humanize(improveCadence(rawMarkdown));
   const summaryBullets = claims.slice(0, 3).map((claim) => claim.claim);
+  const eli5Content = isReal(explainerAi)
+    ? explainerAi.output
+    : createExplainer(topic, claims);
+  const socialPack = isReal(socialAi)
+    ? (tryParseJson<SocialPack>(socialAi.output) ?? createSocialPack(topic, slug, claims))
+    : createSocialPack(topic, slug, claims);
+  const videoScript = isReal(scriptAi)
+    ? scriptAi.output
+    : `Hook: ${topic.title}. Body: explain the verified facts and what remains uncertain. CTA: read the full QuickGist article.`;
+  const imagePrompt = isReal(imageAi)
+    ? imageAi.output
+    : `Editorial realistic news image for "${topic.title}", credible newsroom style, no text overlay, high detail.`;
+
   const article: Article = {
     id: `article-${stableHash(`${topic.id}:${slug}`)}`,
     topicId: topic.id,
@@ -309,10 +434,10 @@ export async function generateArticlePackage(topic: Topic): Promise<GeneratedCon
     dek: topic.summary.slice(0, 150),
     contentMarkdown,
     summaryBullets,
-    eli5Markdown: createExplainer(topic, claims),
-    socialPack: createSocialPack(topic, slug, claims),
-    videoScript: `Hook: ${topic.title}. Body: explain the verified facts and what remains uncertain. CTA: read the full QuickGist article.`,
-    imagePrompt: `Editorial realistic news image for "${topic.title}", credible newsroom style, no text overlay, high detail.`,
+    eli5Markdown: eli5Content,
+    socialPack,
+    videoScript,
+    imagePrompt,
     tags: topic.keywords,
     category: topic.category,
     authorName: "QuickGist Editorial",
@@ -326,6 +451,19 @@ export async function generateArticlePackage(topic: Topic): Promise<GeneratedCon
     createdAt: now,
     updatedAt: now
   };
+
+  // Attempt AI image generation for better hero imagery; fall through on failure
+  try {
+    const aiHero = await generateNewsImage(article.imagePrompt, "hero");
+    if (aiHero.provider !== "placeholder") {
+      article.heroImageUrl = aiHero.url;
+    }
+  } catch (err) {
+    console.warn("[generation] AI hero image failed, keeping stock photo:", (err as Error).message);
+  }
+
+  // Pre-warm the thumbnail cache for social sharing (fire-and-forget)
+  void generateNewsImage(article.imagePrompt, "thumbnail").catch(() => {});
 
   await upsertArticle(article);
 
@@ -350,7 +488,7 @@ export async function generateEli5(topic: Topic): Promise<{ markdown: string; ai
     prompt: buildExplainerPrompt(topic, claims),
     traceId: topic.id
   });
-  return { markdown: createExplainer(topic, claims), aiTraceId: ai.id };
+  return { markdown: isReal(ai) ? ai.output : createExplainer(topic, claims), aiTraceId: ai.id };
 }
 
 export async function generateFaqSection(
@@ -361,6 +499,12 @@ export async function generateFaqSection(
     prompt: buildFaqPrompt(topic, topic.summary),
     traceId: topic.id
   });
+
+  if (isReal(ai)) {
+    const parsed = tryParseJson<{ items: FaqItem[] }>(ai.output);
+    if (parsed?.items?.length) return { items: parsed.items, aiTraceId: ai.id };
+  }
+
   const items: FaqItem[] = [
     {
       question: `What is ${topic.title} about?`,
@@ -416,6 +560,9 @@ export async function generateVideoLongScript(
     prompt: buildVideoLongPrompt(topic, topic.summary),
     traceId: topic.id
   });
+
+  if (isReal(ai)) return { script: ai.output, aiTraceId: ai.id };
+
   const script = `# ${topic.title}
 
 [HOOK 0:00–0:15]
@@ -446,6 +593,15 @@ export async function generateShortsScript(
     prompt: buildShortsPrompt(topic, topic.summary),
     traceId: topic.id
   });
+
+  if (isReal(ai)) {
+    const parsed = tryParseJson<{ beats: { time: string; line: string; visual: string }[] }>(ai.output);
+    if (parsed?.beats?.length) {
+      const script = parsed.beats.map((b) => `${b.time}\n${b.line}\n${b.visual}`).join("\n\n");
+      return { script, beats: parsed.beats, aiTraceId: ai.id };
+    }
+  }
+
   const beats = [
     {
       time: "0:00–0:08",
@@ -480,6 +636,12 @@ export async function generateImagePromptPack(
     prompt: buildImagePromptsPrompt(topic, topic.summary),
     traceId: topic.id
   });
+
+  if (isReal(ai)) {
+    const parsed = tryParseJson<ImagePromptPack>(ai.output);
+    if (parsed?.hero) return { pack: parsed, aiTraceId: ai.id };
+  }
+
   const seed = `${topic.title}, ${topic.category}, editorial style, photorealistic, neutral lighting, no text overlay`;
   return {
     pack: {
@@ -502,6 +664,19 @@ export async function generateSeoRewriteSuggestions(
     prompt: buildSeoRewritePrompt(article, primaryKeyword, issueMessages),
     traceId: article.id
   });
+
+  if (isReal(ai)) {
+    const parsed = tryParseJson<{ title: string; metaDescription: string; suggestions: string[] }>(ai.output);
+    if (parsed) {
+      return {
+        title: parsed.title?.slice(0, 60) ?? article.title,
+        metaDescription: parsed.metaDescription?.slice(0, 160) ?? article.metaDescription,
+        suggestions: parsed.suggestions ?? issueMessages,
+        aiTraceId: ai.id
+      };
+    }
+  }
+
   const newTitle =
     article.title.toLowerCase().includes(primaryKeyword.toLowerCase()) || !primaryKeyword
       ? article.title

@@ -4,19 +4,32 @@ import { useEffect, useState } from "react";
 
 export function ReadingProgress() {
   const [progress, setProgress] = useState(0);
+
   useEffect(() => {
-    function update() {
-      const scrolled = window.scrollY;
-      const height = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(height <= 0 ? 0 : Math.min(100, (scrolled / height) * 100));
+    function handleScroll() {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (docHeight <= 0) {
+        setProgress(0);
+        return;
+      }
+      setProgress(Math.min(100, Math.round((scrollTop / docHeight) * 100)));
     }
-    update();
-    window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
-    return () => {
-      window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
-    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-  return <div className="reading-progress" style={{ width: `${progress}%` }} aria-hidden />;
+
+  return (
+    <div
+      className="reading-progress"
+      style={{ width: `${progress}%` }}
+      role="progressbar"
+      aria-valuenow={progress}
+      aria-valuemin={0}
+      aria-valuemax={100}
+      aria-label="Reading progress"
+    />
+  );
 }

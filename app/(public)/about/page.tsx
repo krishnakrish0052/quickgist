@@ -22,11 +22,11 @@ export default function AboutPage() {
       />
 
       <p className="text-sm font-semibold uppercase tracking-[0.14em] text-signal">About</p>
-      <h1 className="mt-2 text-4xl font-bold tracking-tight text-ink">
+      <h1 className="mt-2 text-4xl font-bold tracking-tight text-[var(--ink)]">
         Independent news, delivered with clarity
       </h1>
 
-      <div className="mt-8 space-y-6 text-base leading-8 text-ink/75">
+      <div className="mt-8 space-y-6 text-base leading-8 text-[var(--ink-soft)]">
         <p>
           QuickGist is an independent news platform dedicated to delivering accurate, well-sourced stories
           across politics, business, science, and culture. We aggregate from 19 trusted global outlets —
@@ -46,7 +46,7 @@ export default function AboutPage() {
           Where the evidence is thin or contested, we say so clearly.
         </p>
 
-        <h2 className="pt-4 text-2xl font-bold tracking-tight text-ink">Our editorial standards</h2>
+        <h2 className="pt-4 text-2xl font-bold tracking-tight text-[var(--ink)]">Our editorial standards</h2>
         <ul className="list-inside list-disc space-y-2">
           <li>Minimum two independent sources per factual claim</li>
           <li>Source attribution on every article</li>
@@ -55,14 +55,14 @@ export default function AboutPage() {
           <li>Ad-editorial separation maintained at all times</li>
         </ul>
 
-        <h2 className="pt-4 text-2xl font-bold tracking-tight text-ink">Who we are</h2>
+        <h2 className="pt-4 text-2xl font-bold tracking-tight text-[var(--ink)]">Who we are</h2>
         <p>
           QuickGist is operated by a small editorial team with backgrounds in journalism, technology, and
           information design. We are headquartered in India and cover global stories with a focus on
           understandability and relevance for international audiences.
         </p>
 
-        <h2 className="pt-4 text-2xl font-bold tracking-tight text-ink">Contact & corrections</h2>
+        <h2 className="pt-4 text-2xl font-bold tracking-tight text-[var(--ink)]">Contact & corrections</h2>
         <p>
           Spotted an error? Have a tip? Reach us at{" "}
           <a href="mailto:editorial@quickgist.news" className="font-semibold text-signal hover:underline">

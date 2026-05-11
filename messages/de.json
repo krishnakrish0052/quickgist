@@ -5,8 +5,11 @@
     "world": "Welt",
     "business": "Wirtschaft",
     "technology": "Technologie",
+    "science": "Wissenschaft",
     "tools": "Tools",
-    "subscribe": "Abonnieren"
+    "subscribe": "Abonnieren",
+    "tagline": "Unabhängige Nachrichten · Verifizierte Quellen",
+    "independentVerified": "Unabhängig · Verifiziert"
   },
   "home": {
     "topStories": "Top-Meldungen",
@@ -17,7 +20,7 @@
     "explained": "Geschichten erklärt.",
     "browseExplainers": "Erklärungen durchsuchen",
     "warmingUp": "Die Redaktion startet.",
-    "warmingUpDesc": "Noch keine veröffentlichten Artikel."
+    "warmingUpDesc": "Noch keine veröffentlichten Artikel. Führen Sie die Pipeline aus, um Inhalte zu generieren."
   },
   "article": {
     "readMore": "Mehr lesen",
@@ -25,30 +28,51 @@
     "minRead": "Min. Lesezeit",
     "relatedStories": "Verwandte Artikel",
     "sources": "Quellen",
-    "eli5": "Einfach erklären"
+    "eli5": "Einfach erklären",
+    "keyPoints": "Kernpunkte",
+    "backToHome": "Zurück",
+    "wantExplained": "Möchten Sie diese Geschichte einfach erklärt bekommen?",
+    "readExplainer": "Erklärung lesen",
+    "shareStory": "Diese Geschichte teilen",
+    "topics": "Themen",
+    "dailyBrief": "Tägliche Zusammenfassung",
+    "subscribeFree": "Kostenlos abonnieren"
   },
   "footer": {
-    "tagline": "Quellenbasierte Nachrichten, vereinfacht.",
+    "tagline": "Unabhängige Nachrichten, verifiziert aus mehreren Quellen, mit redaktioneller Klarheit präsentiert. Kein Rauschen, kein Füllmaterial — nur die Geschichten, die zählen.",
+    "news": "Nachrichten",
+    "toolsHeading": "Tools",
+    "company": "Unternehmen",
+    "latest": "Neueste",
+    "trending": "Trends",
+    "world": "Welt",
+    "business": "Wirtschaft",
+    "technology": "Technologie",
+    "science": "Wissenschaft",
+    "freeTools": "Kostenlose Tools",
+    "articleSummarizer": "Artikel-Zusammenfasser",
+    "newsletterLink": "Newsletter",
+    "rssFeed": "RSS-Feed",
     "about": "Über uns",
-    "privacy": "Datenschutz",
+    "privacy": "Datenschutzerklärung",
     "terms": "Nutzungsbedingungen",
     "contact": "Kontakt",
     "disclaimer": "Haftungsausschluss",
-    "newsletter": "Newsletter",
-    "copyright": "© {year} QuickGist. Alle Rechte vorbehalten."
+    "copyright": "© {year} QuickGist. Alle Rechte vorbehalten.",
+    "verifiedSources": "Geschichten werden vor der Veröffentlichung aus mehreren unabhängigen Quellen verifiziert."
   },
   "newsletter": {
     "heading": "Täglich informiert bleiben.",
-    "subheading": "Die wichtigsten Nachrichten des Tages in Ihrem Posteingang.",
+    "subheading": "Erhalten Sie die wichtigsten Nachrichten des Tages in Ihrem Posteingang — quellenbasiert, ohne Meinung.",
     "placeholder": "ihre@email.de",
     "cta": "Kostenlos abonnieren",
-    "success": "Sie sind auf der Liste.",
+    "success": "Sie sind auf der Liste. Überprüfen Sie Ihren Posteingang.",
     "error": "Etwas ist schiefgelaufen. Versuchen Sie es erneut."
   },
   "tools": {
     "heading": "QuickGist Tools",
     "subheading": "Kostenlose KI-Tools zum Lesen, Recherchieren und Verifizieren.",
     "summarize": "Artikel zusammenfassen",
-    "summarizeDesc": "Fügen Sie eine URL oder einen Text ein — erhalten Sie in Sekunden eine saubere Zusammenfassung."
+    "summarizeDesc": "Fügen Sie eine URL oder einen Text ein — erhalten Sie in Sekunden eine saubere Zusammenfassung mit Quellenangaben."
   }
 }

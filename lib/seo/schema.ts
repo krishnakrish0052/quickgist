@@ -50,7 +50,7 @@ export function homeItemListSchema(articles: Pick<Article, "title" | "slug" | "m
   };
 }
 
-export function newsArticleSchema(article: Article) {
+export function newsArticleSchema(article: Article, inLanguage = "en") {
   return {
     "@context": "https://schema.org",
     "@type": "NewsArticle",
@@ -70,7 +70,7 @@ export function newsArticleSchema(article: Article) {
     image: article.heroImageUrl ? [{ "@type": "ImageObject", url: article.heroImageUrl, width: 1400, height: 788 }] : undefined,
     mainEntityOfPage: { "@type": "WebPage", "@id": abs(`/news/${article.slug}`) },
     url: abs(`/news/${article.slug}`),
-    inLanguage: "en"
+    inLanguage,
   };
 }
 

@@ -1,8 +1,22 @@
 "use client";
 
-import { PageTransition } from "@/components/motion/PageTransition";
-import type { ReactNode } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { usePathname } from "next/navigation";
 
-export default function Template({ children }: { children: ReactNode }) {
-  return <PageTransition>{children}</PageTransition>;
+export default function Template({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={pathname}
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -8 }}
+        transition={{ duration: 0.25, ease: [0.22, 0.8, 0.25, 1] }}
+      >
+        {children}
+      </motion.div>
+    </AnimatePresence>
+  );
 }

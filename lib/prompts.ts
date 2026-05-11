@@ -1,14 +1,43 @@
 import type { Article, FactClaim, Topic } from "@/lib/types";
 
 export function buildArticlePrompt(topic: Topic, claims: FactClaim[]): string {
+  const factsBlock = claims.length > 0
+    ? [
+        "Verified facts (cross-checked from multiple sources):",
+        ...claims.map((claim, index) => `${index + 1}. ${claim.claim}`)
+      ]
+    : [
+        `Use this summary as your starting point: ${topic.summary}`,
+        "Source context: " + topic.sourceIds.map(() => "one news report").join(", ") + ".",
+        "Since only one source is available, clearly note what is confirmed vs. what needs verification."
+      ];
+
   return [
-    "You are an expert news journalist. Write only from the verified facts below.",
-    `Topic: ${topic.title}`,
+    "You are an expert news journalist for QuickGist, a magazine-grade publication.",
+    `Headline: ${topic.title}`,
     `Primary keyword: ${topic.keywords[0] ?? topic.title}`,
+    `Secondary keywords: ${topic.keywords.slice(1, 4).join(", ") || topic.category}`,
     "Audience: general readers, students, and early-career professionals.",
-    "Rules: synthesize, do not copy source phrasing, stay neutral, and flag uncertainty.",
-    "Verified facts:",
-    ...claims.map((claim, index) => `${index + 1}. ${claim.claim}`)
+    "",
+    "OUTPUT REQUIREMENTS:",
+    "- Write 500–800 words in clean Markdown. Never fewer than 400 words — short output will be rejected and regenerated.",
+    "- Start with a strong lede paragraph that hooks the reader.",
+    "- Use exactly 3 H2 sections with descriptive, keyword-rich headings.",
+    "- Write at least 4 paragraphs separated by blank lines.",
+    "- Use 1–2 bullet lists where facts naturally group together.",
+    "- Write in short paragraphs (2–4 sentences each).",
+    "- Use plain, conversational English. Flesch reading ease above 60.",
+    "- End with a \"Why this matters\" paragraph.",
+    "- Never use cliché AI phrases: delve, tapestry, navigate, landscape, moreover, furthermore, in today's, it's worth noting, a testament to, fast-paced, ever-changing, digital age, without further ado.",
+    "",
+    "RULES:",
+    "- Synthesize facts; do not copy source phrasing verbatim.",
+    "- Stay neutral. Flag uncertainty when facts are thin.",
+    "- If only one source exists, say so early in the article.",
+    "- The primary keyword MUST appear in the first sentence, one H2 heading, and the closing paragraph.",
+    "- Output will be automatically validated. Missing headings, short word count, or AI-clichés will cause rejection.",
+    "",
+    ...factsBlock
   ].join("\n");
 }
 
