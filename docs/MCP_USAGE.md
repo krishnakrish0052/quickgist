@@ -104,14 +104,13 @@ npm run mcp:http
 | `get_content_calendar` | Upcoming scheduled posts + recently published | REAL | No |
 | `generate_newsletter_digest` | Compile top-N recent articles into digest format | REAL | No |
 
-### AI Analysis + Content Ops (7 tools)
+### AI Analysis + Content Ops (6 tools)
 
 | Tool | Purpose | Tier | AI Required |
 |---|---|---|---|
 | `detect_ai_content` | Score article for AI-detectable patterns: slop phrases, sentence length uniformity, trope frequency. Returns human-likelihood score 0-100. | REAL | No |
 | `translate_article` | Translate article to target locale with context preservation | HYBRID | Recommended |
 | `suggest_related_links` | Find related articles by matching tags and categories | REAL | No |
-| `optimize_for_featured_snippet` | Rewrite content sections to target Google Featured Snippets | HYBRID | Recommended |
 | `generate_newsletter_brief` | Daily/weekly newsletter compilation from recent articles | HYBRID | Recommended |
 | `analyze_content_gaps` | Compare article against top-ranking competitors, identify missing subtopics | HYBRID | Recommended |
 | `generate_internal_links` | Suggest internal linking opportunities across articles | REAL | No |
@@ -137,7 +136,7 @@ npm run mcp:http
 
 ## v0.1.1 → v0.1.2 changes
 
-### New tools (9)
+### New tools (8)
 
 | Tool | What it does |
 |---|---|
@@ -146,7 +145,6 @@ npm run mcp:http
 | `regenerate_image` | Re-generate an article image with a different style or prompt |
 | `analyze_content_quality` | Deep AI content analysis: bias detection, fact density, reading level, entity extraction |
 | `analyze_traffic_potential` | Estimate traffic/ranking potential for a topic based on keyword volume signals |
-| `optimize_for_featured_snippet` | Rewrite content sections to target Google Featured Snippets |
 | `analyze_content_gaps` | Compare article against top-ranking competitors, identify missing subtopics |
 | `generate_internal_links` | Suggest internal linking opportunities across existing articles |
 | `audit_seo_health` | Full-site SEO audit: broken links, missing meta, duplicate content, thin content |

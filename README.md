@@ -73,7 +73,7 @@ npm run mcp:stdio            # stdio transport for Claude Desktop
 | SEO | `analyze_seo_score`, `analyze_seo_with_ai`, `seo_audit_site`, `audit_seo_health` | REAL / HYBRID |
 | Quality | `quality_evaluate`, `quality_evaluate_with_ai`, `analyze_content_quality` | REAL / HYBRID |
 | Publish | `publish_article`, `distribution_schedule` | REAL |
-| Content Ops | `analyze_traffic_potential`, `optimize_for_featured_snippet`, `analyze_content_gaps`, `generate_internal_links`, `generate_newsletter_digest`, `translate_article`, `detect_ai_content`, `suggest_related_links` | HYBRID / REAL |
+| Content Ops | `analyze_traffic_potential`, `analyze_content_gaps`, `generate_internal_links`, `generate_newsletter_brief`, `generate_newsletter_digest`, `translate_article`, `detect_ai_content`, `suggest_related_links` | HYBRID / REAL |
 | Reporting | `analytics_overview`, `ops_snapshot`, `get_top_articles`, `get_content_calendar` | REAL |
 | Autonomous | `autonomous_start`, `autonomous_stop`, `autonomous_status`, `autonomous_run_once` | REAL |
 
@@ -204,7 +204,7 @@ Admin routes are `Disallow`-ed in `robots.txt`, excluded from `sitemap.xml`, and
 - High-risk categories (health, finance, legal, conflict, elections) always require human review
 
 **MCP v0.1.2 — 43 tools**
-- 9 new tools: `analyze_content_quality`, `generate_article_image`, `analyze_traffic_potential`, `optimize_for_featured_snippet`, `generate_newsletter_brief`, `analyze_content_gaps`, `generate_internal_links`, `audit_seo_health`, `trending_detect_incremental`
+- 8 new tools: `analyze_content_quality`, `generate_article_image`, `analyze_traffic_potential`, `generate_newsletter_brief`, `analyze_content_gaps`, `generate_internal_links`, `audit_seo_health`, `trending_detect_incremental`
 - All tools include `version: "0.1.2"` and `capabilityLevel` metadata
 
 **Analytics + AdSense**

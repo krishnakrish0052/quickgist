@@ -120,7 +120,7 @@ Both MCP quality tools (`quality_evaluate`, `quality_evaluate_with_ai`) now use 
 
 ### Phase 7 — MCP v0.1.2: 43 Tools
 
-- 9 new tools: `analyze_content_quality`, `generate_article_image`, `analyze_traffic_potential`, `optimize_for_featured_snippet`, `generate_newsletter_brief`, `analyze_content_gaps`, `generate_internal_links`, `audit_seo_health`, `trending_detect_incremental`.
+- 8 new tools: `analyze_content_quality`, `generate_article_image`, `analyze_traffic_potential`, `generate_newsletter_brief`, `analyze_content_gaps`, `generate_internal_links`, `audit_seo_health`, `trending_detect_incremental`.
 - All tools include `version: "0.1.2"` and `capabilityLevel: "basic" | "advanced" | "expert"` metadata.
 - Upgraded HYBRID tools with enhanced AI capabilities: entity extraction, E-E-A-T signals, NLP keyword clustering, factual consistency scoring.
 
